@@ -1,0 +1,60 @@
+﻿@page "/settings"
+@using LeadScraper.ComponentBases
+@inherits SettingsBase
+
+<h1>Settings</h1>
+
+
+@if (Settings == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    @if (Error.IsError)
+    {
+        <div class="alert alert-primary" role="alert">
+            @Error.ErrorMessage
+        </div>
+    }
+    <div class="form-group mb-5">
+        <label for="bingKey" class="sub-header">Bing Key</label>
+        <input @bind="Settings.BingKey" type="text" class="form-control" id="bingKey">
+        <small id="emailHelp" class="form-text text-muted">A Bing Search API key will allow more searchers per month.</small>
+        <button class="btn btn-primary">Save Key</button>
+    </div>
+    <form class="form-inline mb-5">
+        <div class="form-group">
+            <label for="blackListTerm" class="sub-header">Black Listed Terms</label>
+            <input type="text" class="form-control mx-2" id="blackListTerm">
+            <button class="btn btn-primary">Add</button>
+        </div>
+    </form>
+
+    <div class="row mb-5">
+        @foreach (var term in Settings.BlackListTerms)
+        {
+            <div class="col-5 col-md-4 col-lg-3 col-xl-2">
+                <h4><span class="badge badge-danger">@term<button class="btn btn-sm btn-light ml-2" @onclick="@(e => DeleteTerm(term))">X</button></span></h4>
+            </div>
+        }
+    </div>
+    <form class="form-inline mb-5">
+        <div class="form-group">
+            <label for="whiteListTld" class="sub-header">White Listed TLDs</label>
+            <input type="text" class="form-control mx-2" id="whiteListTld">
+            <button class="btn btn-primary">Add</button>
+        </div>
+    </form>
+
+    <div class="row mb-5">
+        @foreach (var tld in Settings.WhiteListTlds)
+        {
+            <div class="col-5 col-md-4 col-lg-3 col-xl-2">
+                <h4><span class="badge badge-success">@tld<button class="btn btn-sm btn-light ml-2" @onclick="(e => DeleteTld(tld))">X</button></span></h4>
+
+            </div>
+        }
+    </div>
+
+}

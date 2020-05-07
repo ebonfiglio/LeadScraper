@@ -3,11 +3,27 @@
     <TargetFramework>netcoreapp3.1</TargetFramework>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="ElectronNET.API" Version="8.31.1" />
+    <Compile Remove="LeadScraper.Domain\**" />
+    <Compile Remove="LeadScraper.Infrastructure\**" />
+    <Content Remove="LeadScraper.Domain\**" />
+    <Content Remove="LeadScraper.Infrastructure\**" />
+    <EmbeddedResource Remove="LeadScraper.Domain\**" />
+    <EmbeddedResource Remove="LeadScraper.Infrastructure\**" />
+    <None Remove="LeadScraper.Domain\**" />
+    <None Remove="LeadScraper.Infrastructure\**" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\LeadScraper.Domain\LeadScraper.Domain.csproj" />
-    <ProjectReference Include="..\LeadScraper.Infrastructure\LeadScraper.Infrastructure.csproj" />
+    <PackageReference Include="AutoMapper" Version="9.0.0" />
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
+    <PackageReference Include="ElectronNET.API" Version="8.31.1" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.3">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="LeadScraper.Domain\LeadScraper.Domain.csproj" />
+    <ProjectReference Include="LeadScraper.Infrastructure\LeadScraper.Infrastructure.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Update="electron.manifest.json">

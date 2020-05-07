@@ -3,11 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29905.134
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeadScraper", "LeadScraper.csproj", "{202ABC9F-F308-4F58-B908-32044C5DACC9}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper", "LeadScraper.csproj", "{202ABC9F-F308-4F58-B908-32044C5DACC9}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.Domain", "..\LeadScraper.Domain\LeadScraper.Domain.csproj", "{7847D126-1500-4C39-BB46-3622BBE7964D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.Domain", "LeadScraper.Domain\LeadScraper.Domain.csproj", "{6CE67C61-FE50-4E45-9AF7-2EF2C10B8C74}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.Infrastructure", "..\LeadScraper.Infrastructure\LeadScraper.Infrastructure.csproj", "{3EAB1AF1-A452-46B9-861B-9C8C74CF6C38}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.Infrastructure", "LeadScraper.Infrastructure\LeadScraper.Infrastructure.csproj", "{1EFA868C-5D15-4018-BE10-9668B654DCB2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -19,14 +19,14 @@ Global
 		{202ABC9F-F308-4F58-B908-32044C5DACC9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{202ABC9F-F308-4F58-B908-32044C5DACC9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{202ABC9F-F308-4F58-B908-32044C5DACC9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{7847D126-1500-4C39-BB46-3622BBE7964D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{7847D126-1500-4C39-BB46-3622BBE7964D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{7847D126-1500-4C39-BB46-3622BBE7964D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{7847D126-1500-4C39-BB46-3622BBE7964D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{3EAB1AF1-A452-46B9-861B-9C8C74CF6C38}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{3EAB1AF1-A452-46B9-861B-9C8C74CF6C38}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{3EAB1AF1-A452-46B9-861B-9C8C74CF6C38}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{3EAB1AF1-A452-46B9-861B-9C8C74CF6C38}.Release|Any CPU.Build.0 = Release|Any CPU
+		{6CE67C61-FE50-4E45-9AF7-2EF2C10B8C74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6CE67C61-FE50-4E45-9AF7-2EF2C10B8C74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6CE67C61-FE50-4E45-9AF7-2EF2C10B8C74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6CE67C61-FE50-4E45-9AF7-2EF2C10B8C74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1EFA868C-5D15-4018-BE10-9668B654DCB2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1EFA868C-5D15-4018-BE10-9668B654DCB2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1EFA868C-5D15-4018-BE10-9668B654DCB2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1EFA868C-5D15-4018-BE10-9668B654DCB2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

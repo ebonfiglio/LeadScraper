@@ -1,14 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using LeadScraper.Data;
 using ElectronNET.API;
 using LeadScraper.Infrastructure;
 using LeadScraper.Infrastructure.Contracts;
@@ -16,6 +11,7 @@ using LeadScraper.Infrastructure.Repositories;
 using LeadScraper.Domain.Contracts;
 using LeadScraper.Domain.Services;
 using AutoMapper;
+using LeadScraper.Domain.Mapper;
 
 namespace LeadScraper
 {
@@ -35,7 +31,7 @@ namespace LeadScraper
             services.AddDbContext<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
-            services.AddAutoMapper(typeof(Startup));
+            services.AddAutoMapper(typeof(LeadScraperProfile));
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
         }
