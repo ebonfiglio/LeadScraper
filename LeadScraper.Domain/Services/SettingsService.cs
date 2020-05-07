@@ -24,7 +24,9 @@ namespace LeadScraper.Domain.Services
         public async Task<SettingResponse> AddAsync(SettingRequest request)
         {
             var entity = _mapper.Map<Setting>(request);
-            return await Task.Run(()=>_mapper.Map<SettingResponse>(_repo.Add(entity)));        
+            entity = _repo.Add(entity);
+            await _repo.SaveChangesAsync();
+            return await Task.Run(()=>_mapper.Map<SettingResponse>(entity));        
         }
 
         public void Delete(Setting request)
@@ -45,19 +47,7 @@ namespace LeadScraper.Domain.Services
         public async Task<SettingResponse> GetAsync()
         {
             var entity = await _repo.GetAsync();
-            if(entity == null)
-            {
-                entity = await SeedInitialSetting();
-            }
             return _mapper.Map<SettingResponse>(entity);
-        }
-
-        private async Task<Setting> SeedInitialSetting()
-        {
-            SettingRequest request = new SettingRequest() { BingKey = "", BlackListTerms = DefaultSettingsHelper.DefaultBlackListTerms(), WhiteListTlds = DefaultSettingsHelper.DefaultWhiteListTlds() };
-            var response = await AddAsync(request);
-            await _repo.SaveChangesAsync();
-            return _mapper.Map<Setting>(response);
         }
     }
 }

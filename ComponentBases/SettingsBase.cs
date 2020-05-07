@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using LeadScraper.Domain.Contracts;
+using LeadScraper.Domain.Helpers;
 using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Domain.Models.Responses;
 using LeadScraper.Infrastructure.Entities;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace LeadScraper.ComponentBases
 {
-    public class SettingsBase :ComponentBase
+    public class SettingsBase : ComponentBase
     {
         [Inject]
         ISettingsService _settingsService { get; set; }
@@ -21,23 +22,30 @@ namespace LeadScraper.ComponentBases
         protected override Task OnInitializedAsync()
         {
             InitializeSettings();
-            return  base.OnInitializedAsync();
+            return base.OnInitializedAsync();
         }
         public SettingsViewModel Settings { get; set; } = new SettingsViewModel();
 
         public ErrorModel Error { get; set; } = new ErrorModel(false);
 
-        private int SettingId { get; set; }
+        private int SettingId { get; set; } = 0;
 
         private async void InitializeSettings()
         {
             var response = await _settingsService.GetAsync();
-            SettingId = response.Id;
-            Settings.BingKey = response.BingKey;
-            Settings.BlackListTerms = response.BlackListTerms?.Split(",").ToList();
-            Settings.WhiteListTlds = response.WhiteListTlds?.Split(",").ToList();
-            if(SettingId == 0)
+            if (response != null)
             {
+                SettingId = response.Id;
+                Settings.BingKey = response.BingKey;
+                Settings.BlackListTerms = response.BlackListTerms?.Split(",").ToList();
+                Settings.WhiteListTlds = response.WhiteListTlds?.Split(",").ToList();
+            }
+            else
+            {
+                Settings.BingKey = "";
+                Settings.BlackListTerms = DefaultSettingsHelper.DefaultBlackListTerms().Split(",").ToList();
+                Settings.WhiteListTlds = DefaultSettingsHelper.DefaultWhiteListTlds().Split(",").ToList();
+                AddInitialSettings(Settings);
                 StateHasChanged();
             }
         }
@@ -66,7 +74,7 @@ namespace LeadScraper.ComponentBases
         {
             Settings.WhiteListTlds.Remove(tld);
             UpdateSettings(Settings);
-             
+
         }
         public void DeleteTerm(string term)
         {
@@ -81,12 +89,26 @@ namespace LeadScraper.ComponentBases
             request.BingKey = Settings.BingKey;
             request.BlackListTerms = string.Join(",", Settings.BlackListTerms);
             request.WhiteListTlds = string.Join(",", Settings.WhiteListTlds);
-            var result  = await _settingsService.EditAsync(request);
-            if(result == null)
+            var result = await _settingsService.EditAsync(request);
+            if (result == null)
             {
                 Error.IsError = true;
-                Error.ErrorMessage = "Error saving saving.";
+                Error.ErrorMessage = "Error saving setting.";
                 InitializeSettings();
+            }
+        }
+
+        private async void AddInitialSettings(SettingsViewModel viewModel)
+        {
+            SettingRequest request = new SettingRequest();
+            request.Id = SettingId;
+            request.BingKey = Settings.BingKey;
+            request.BlackListTerms = string.Join(",", Settings.BlackListTerms);
+            request.WhiteListTlds = string.Join(",", Settings.WhiteListTlds);
+            var result = await _settingsService.AddAsync(request);
+            if (result != null)
+            {
+                SettingId = result.Id;
             }
         }
     }
