@@ -23,7 +23,7 @@ namespace LeadScraper.ComponentBases
             InitializeSettings();
             return  base.OnInitializedAsync();
         }
-        public SettingsViewModel Settings { get; set; }
+        public SettingsViewModel Settings { get; set; } = new SettingsViewModel();
 
         public ErrorModel Error { get; set; } = new ErrorModel(false);
 
@@ -33,10 +33,13 @@ namespace LeadScraper.ComponentBases
         {
             var response = await _settingsService.GetAsync();
             SettingId = response.Id;
-            Settings = new SettingsViewModel();
             Settings.BingKey = response.BingKey;
             Settings.BlackListTerms = response.BlackListTerms?.Split(",").ToList();
             Settings.WhiteListTlds = response.WhiteListTlds?.Split(",").ToList();
+            if(SettingId == 0)
+            {
+                StateHasChanged();
+            }
         }
 
         public void AddBlackListTerm(string term)

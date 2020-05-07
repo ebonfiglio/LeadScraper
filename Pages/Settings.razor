@@ -5,7 +5,7 @@
 <h1>Settings</h1>
 
 
-@if (Settings == null)
+@if (Settings.BlackListTerms == null || Settings.WhiteListTlds == null)
 {
     <p><em>Loading...</em></p>
 }
