@@ -1,0 +1,45 @@
+﻿@page "/search"
+@using LeadScraper.ComponentBases
+@inherits SearchBase
+
+
+<h1>Search</h1>
+
+<form>
+    <div class="form-group row">
+            <label for="staticEmail" class="col-sm-2 col-form-label">Search Term</label>        
+            <div class="col-sm-6">
+                <input type="text" class="form-control" @bind="Search.SearchTerm">
+            </div>
+        </div>
+    <div class="form-group row">  
+            <label for="inputPassword" class="col-sm-2 col-form-label">Results Per Page</label>     
+            <div class="col-sm-6">
+                <input type="number" min="10" max="50" class="form-control" @bind="Search.ResultsPerPage">
+            </div>
+        </div>
+    <div class="form-group row">     
+            <label for="inputPassword" class="col-sm-2 col-form-label">Starting Page</label>          
+            <div class="col-sm-6">
+                <input type="number" min="1" class="form-control" @bind="Search.StartingPage">
+            </div>
+        </div>
+    <div class="form-group row">        
+            <label for="inputPassword" class="col-sm-2 col-form-label">Pages</label>         
+            <div class="col-sm-6">
+                <input type="number" min="1" class="form-control" @bind="Search.Pages">
+            </div>
+        </div>
+    <div class="form-group row">
+            <label for="inputPassword" class="col-sm-2 col-form-label">Country Code</label>        
+            <div class="col-sm-6">
+                <select @bind="Search.CountryCode" class="form-control">
+                    <option value="All">All</option>
+                    @foreach (var country in CountryList)
+                    {
+                        <option value="@country.Code">@country.Name</option>
+                    }
+                </select>
+            </div>
+        </div>
+</form>
