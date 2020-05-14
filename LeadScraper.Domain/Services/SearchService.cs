@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Sockets;
 using System.Text;
 
 namespace LeadScraper.Domain.Services
@@ -111,6 +112,7 @@ namespace LeadScraper.Domain.Services
             {
                 if (!UriContainsBlackListTerm(settings, webPage) && UriContainsWhiteListTld(settings, webPage))
                 {
+                    //Use WhoIsServer Service to get list of WhoIsServers.
                     LeadItem lead = new LeadItem();
                     lead.Name = webPage.Name;
                     lead.Url = webPage.Url.ToString();
@@ -122,6 +124,25 @@ namespace LeadScraper.Domain.Services
 
             }
             return leads = leads.GroupBy(elem => elem.AbsoluteUri).Select(group => group.First()).ToList();
+        }
+
+        private string GetWhoisInformation(string whoisServer, string url)
+        {
+            StringBuilder stringBuilderResult = new StringBuilder();
+            TcpClient tcpClinetWhois = new TcpClient(whoisServer, 43);
+            NetworkStream networkStreamWhois = tcpClinetWhois.GetStream();
+            BufferedStream bufferedStreamWhois = new BufferedStream(networkStreamWhois);
+            StreamWriter streamWriter = new StreamWriter(bufferedStreamWhois);
+
+            streamWriter.WriteLine(url);
+            streamWriter.Flush();
+
+            StreamReader streamReaderReceive = new StreamReader(bufferedStreamWhois);
+
+            while (!streamReaderReceive.EndOfStream)
+                stringBuilderResult.AppendLine(streamReaderReceive.ReadLine());
+
+            return stringBuilderResult.ToString();
         }
     }
 }
