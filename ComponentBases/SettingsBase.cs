@@ -26,6 +26,10 @@ namespace LeadScraper.ComponentBases
         }
         public SettingsViewModel Settings { get; set; } = new SettingsViewModel();
 
+        public string AddedTld { get; set; }
+
+        public string AddedTerm { get; set; }
+
         public ErrorModel Error { get; set; } = new ErrorModel(false);
 
         private int SettingId { get; set; } = 0;
@@ -79,6 +83,11 @@ namespace LeadScraper.ComponentBases
         public void DeleteTerm(string term)
         {
             Settings.BlackListTerms.Remove(term);
+            UpdateSettings(Settings);
+        }
+
+        public void SaveKey()
+        {
             UpdateSettings(Settings);
         }
 

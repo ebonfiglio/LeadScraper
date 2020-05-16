@@ -1,4 +1,6 @@
-﻿using LeadScraper.Models;
+﻿using LeadScraper.Domain.Contracts;
+using LeadScraper.Domain.Models.Requests;
+using LeadScraper.Models;
 using LeadScraper.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
@@ -12,10 +14,9 @@ namespace LeadScraper.ComponentBases
 {
     public class SearchBase :ComponentBase
     {
-        public SearchBase()
-        {
-
-        }
+        [Inject]
+        ISearchService _searchService { get; set; }
+      
         public SearchViewModel Search { get; set; } = new SearchViewModel();
         public List<CountryModel> CountryList { get; set; }
         protected override Task OnInitializedAsync()
@@ -279,6 +280,17 @@ namespace LeadScraper.ComponentBases
 { 'name': 'Zambia', 'code': 'ZM'},
 { 'name': 'Zimbabwe', 'code': 'ZW'}
 ]";
+        }
+
+        public void GetLeads()
+        {
+            SearchRequest searchRequest = new SearchRequest();
+            searchRequest.CountryCode = Search.CountryCode;
+            searchRequest.Pages = Search.Pages;
+            searchRequest.ResultsPerPage = Search.ResultsPerPage;
+            searchRequest.SearchTerm = Search.SearchTerm;
+            searchRequest.StartingPage = Search.StartingPage;
+            _searchService.Search(searchRequest);
         }
     }
 

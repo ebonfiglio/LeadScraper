@@ -34,6 +34,9 @@ namespace LeadScraper
             services.AddAutoMapper(typeof(LeadScraperProfile));
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
+            services.AddScoped<ISearchService, SearchService>();
+            services.AddScoped<IWhoIsServerRepository, WhoIsServerRepository>();
+            services.AddScoped<IWhoIsServerService, WhoIsServerService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

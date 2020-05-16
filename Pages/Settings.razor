@@ -21,13 +21,13 @@ else
         <label for="bingKey" class="sub-header">Bing Key</label>
         <input @bind="Settings.BingKey" type="text" class="form-control" id="bingKey">
         <small id="emailHelp" class="form-text text-muted">A Bing Search API key will allow more searchers per month.</small>
-        <button class="btn btn-primary">Save Key</button>
+        <button class="btn btn-primary"  @onclick="@(e => SaveKey())">Save Key</button>
     </div>
     <form class="form-inline mb-5">
         <div class="form-group">
             <label for="blackListTerm" class="sub-header">Black Listed Terms</label>
-            <input type="text" class="form-control mx-2" id="blackListTerm">
-            <button class="btn btn-primary">Add</button>
+            <input type="text" class="form-control mx-2" @bind="AddedTerm">
+            <button class="btn btn-primary" @onclick="(e => AddBlackListTerm(AddedTerm))">Add</button>
         </div>
     </form>
 
@@ -42,8 +42,8 @@ else
     <form class="form-inline mb-5">
         <div class="form-group">
             <label for="whiteListTld" class="sub-header">White Listed TLDs</label>
-            <input type="text" class="form-control mx-2" id="whiteListTld">
-            <button class="btn btn-primary">Add</button>
+            <input type="text" class="form-control mx-2" @bind="AddedTld">
+            <button class="btn btn-primary" @onclick="(e => AddWhiteListTld(AddedTld))" >Add</button>
         </div>
     </form>
 

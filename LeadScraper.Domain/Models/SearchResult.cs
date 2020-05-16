@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Text;
 
 namespace LeadScraper.Domain.Models
@@ -158,12 +160,12 @@ namespace LeadScraper.Domain.Models
 
     public partial class Welcome
     {
-        public static Welcome FromJson(string json) => JsonConvert.DeserializeObject<Welcome>(json, WebScraper.Converter.Settings);
+        public static Welcome FromJson(string json) => JsonConvert.DeserializeObject<Welcome>(json, LeadScraper.Domain.Models.Converter.Settings);
     }
 
     public static class Serialize
     {
-        public static string ToJson(this Welcome self) => JsonConvert.SerializeObject(self, WebScraper.Converter.Settings);
+        public static string ToJson(this Welcome self) => JsonConvert.SerializeObject(self, LeadScraper.Domain.Models.Converter.Settings);
     }
 
     internal static class Converter

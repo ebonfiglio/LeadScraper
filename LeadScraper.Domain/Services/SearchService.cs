@@ -2,6 +2,7 @@
 using LeadScraper.Domain.Models;
 using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Domain.Models.Responses;
+using LeadScraper.Infrastructure.Entities;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,17 +16,20 @@ namespace LeadScraper.Domain.Services
 {
     public class SearchService : ISearchService
     {
-        ISettingsService _settingsService;
+        private readonly ISettingsService _settingsService;
+        private readonly IWhoIsServerService _whoIsServerService;
         const string endpoint = "https://api.cognitive.microsoft.com/bing/v7.0/search";
-        public SearchService(ISettingsService settingsService)
+        public SearchService(ISettingsService settingsService, IWhoIsServerService whoIsServerService)
         {
             _settingsService = settingsService;
+            _whoIsServerService = whoIsServerService;
         }
         public async void Search(SearchRequest request)
         {
             var settings = await _settingsService.GetAsync();
             SearchResult result = GetBingSearchResult(request, settings);
-            List<LeadItem> leads = GetLeadItems(settings, result);
+            List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
+            List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
 
 
         }
@@ -105,14 +109,19 @@ namespace LeadScraper.Domain.Services
             
         }
 
-        private static List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result)
+        private static List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
         {
             List<LeadItem> leads = new List<LeadItem>();
+            
             foreach (var webPage in result.WebPages.Value)
             {
                 if (!UriContainsBlackListTerm(settings, webPage) && UriContainsWhiteListTld(settings, webPage))
                 {
-                    //Use WhoIsServer Service to get list of WhoIsServers.
+                    foreach(var tld in settings.WhiteListTlds.Split(','))
+                    {
+                        var server = whoIsServers.FirstOrDefault(l => l.Tld == tld);
+                        var whoIsInfo = GetWhoisInformation(server.Server, webPage.Url.ToString());
+                    }
                     LeadItem lead = new LeadItem();
                     lead.Name = webPage.Name;
                     lead.Url = webPage.Url.ToString();
@@ -126,7 +135,7 @@ namespace LeadScraper.Domain.Services
             return leads = leads.GroupBy(elem => elem.AbsoluteUri).Select(group => group.First()).ToList();
         }
 
-        private string GetWhoisInformation(string whoisServer, string url)
+        private static string GetWhoisInformation(string whoisServer, string url)
         {
             StringBuilder stringBuilderResult = new StringBuilder();
             TcpClient tcpClinetWhois = new TcpClient(whoisServer, 43);

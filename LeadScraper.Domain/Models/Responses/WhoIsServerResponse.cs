@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.Text;
 
-namespace LeadScraper.Infrastructure.Entities
+namespace LeadScraper.Domain.Models.Responses
 {
-    public class WhoIsServer
+    public class WhoIsServerResponse
     {
-        [Key]
         public string Tld { get; set; }
 
         public string Server { get; set; }
