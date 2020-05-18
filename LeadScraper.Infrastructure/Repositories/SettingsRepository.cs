@@ -3,6 +3,7 @@ using LeadScraper.Infrastructure.Entities;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,6 +41,16 @@ namespace LeadScraper.Infrastructure.Repositories
 
         public Setting Update(Setting entity)
         {
+            var local = _context.Set<Setting>()
+    .Local
+    .FirstOrDefault(entry => entry.Id.Equals(entity.Id));
+
+            // check if local is not null 
+            if (local != null)
+            {
+                // detach
+                _context.Entry(local).State = EntityState.Detached;
+            }
             _context.Entry(entity).State = EntityState.Modified;
             return entity;
         }

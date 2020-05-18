@@ -19,10 +19,9 @@ namespace LeadScraper.ComponentBases
         [Inject]
         ISettingsService _settingsService { get; set; }
 
-        protected override Task OnInitializedAsync()
+        protected override async Task OnInitializedAsync()
         {
-            InitializeSettings();
-            return base.OnInitializedAsync();
+            await InitializeSettings();
         }
         public SettingsViewModel Settings { get; set; } = new SettingsViewModel();
 
@@ -34,10 +33,10 @@ namespace LeadScraper.ComponentBases
 
         private int SettingId { get; set; } = 0;
 
-        private async void InitializeSettings()
+        private async Task InitializeSettings()
         {
             var response = await _settingsService.GetAsync();
-            if (response != null)
+            if (response != null )
             {
                 SettingId = response.Id;
                 Settings.BingKey = response.BingKey;
@@ -49,49 +48,50 @@ namespace LeadScraper.ComponentBases
                 Settings.BingKey = "";
                 Settings.BlackListTerms = DefaultSettingsHelper.DefaultBlackListTerms().Split(",").ToList();
                 Settings.WhiteListTlds = DefaultSettingsHelper.DefaultWhiteListTlds().Split(",").ToList();
-                AddInitialSettings(Settings);
+                await AddInitialSettings(Settings);
                 StateHasChanged();
             }
+           
         }
 
-        public void AddBlackListTerm(string term)
+        public async Task AddBlackListTerm(string term)
         {
             Settings.BlackListTerms.Add(term);
-            UpdateSettings(Settings);
+            await UpdateSettings(Settings);
         }
 
-        public void AddWhiteListTld(string tld)
+        public async Task AddWhiteListTld(string tld)
         {
             Settings.WhiteListTlds.Add(tld);
-            UpdateSettings(Settings);
+            await UpdateSettings(Settings);
 
         }
 
-        public void AddBingKey(string bingKey)
+        public async Task AddBingKey(string bingKey)
         {
             Settings.BingKey = bingKey;
-            UpdateSettings(Settings);
+            await UpdateSettings(Settings);
 
         }
 
-        public void DeleteTld(string tld)
+        public async Task DeleteTld(string tld)
         {
             Settings.WhiteListTlds.Remove(tld);
-            UpdateSettings(Settings);
+            await UpdateSettings(Settings);
 
         }
-        public void DeleteTerm(string term)
+        public async Task DeleteTerm(string term)
         {
             Settings.BlackListTerms.Remove(term);
-            UpdateSettings(Settings);
+            await UpdateSettings(Settings);
         }
 
-        public void SaveKey()
+        public async Task SaveKey()
         {
-            UpdateSettings(Settings);
+            await UpdateSettings(Settings);
         }
 
-        private async void UpdateSettings(SettingsViewModel viewModel)
+        private async Task UpdateSettings(SettingsViewModel viewModel)
         {
             SettingRequest request = new SettingRequest();
             request.Id = SettingId;
@@ -103,11 +103,11 @@ namespace LeadScraper.ComponentBases
             {
                 Error.IsError = true;
                 Error.ErrorMessage = "Error saving setting.";
-                InitializeSettings();
+                await InitializeSettings();
             }
         }
 
-        private async void AddInitialSettings(SettingsViewModel viewModel)
+        private async Task AddInitialSettings(SettingsViewModel viewModel)
         {
             SettingRequest request = new SettingRequest();
             request.Id = SettingId;

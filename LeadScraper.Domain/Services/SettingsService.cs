@@ -41,7 +41,7 @@ namespace LeadScraper.Domain.Services
            var entity = _repo.Update(_mapper.Map<SettingRequest, Setting>(request));
            await _repo.SaveChangesAsync();
 
-           return _mapper.Map<SettingResponse>(_repo.Add(entity));
+           return _mapper.Map<SettingResponse>(entity);
         }
 
         public async Task<SettingResponse> GetAsync()
