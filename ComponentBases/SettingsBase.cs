@@ -35,8 +35,9 @@ namespace LeadScraper.ComponentBases
 
         private async Task InitializeSettings()
         {
+
             var response = await _settingsService.GetAsync();
-            if (response != null )
+            if (response != null)
             {
                 SettingId = response.Id;
                 Settings.BingKey = response.BingKey;
@@ -51,6 +52,7 @@ namespace LeadScraper.ComponentBases
                 await AddInitialSettings(Settings);
                 StateHasChanged();
             }
+            
            
         }
 
@@ -99,12 +101,15 @@ namespace LeadScraper.ComponentBases
             request.BlackListTerms = string.Join(",", Settings.BlackListTerms);
             request.WhiteListTlds = string.Join(",", Settings.WhiteListTlds);
             var result = await _settingsService.EditAsync(request);
+
             if (result == null)
             {
                 Error.IsError = true;
                 Error.ErrorMessage = "Error saving setting.";
                 await InitializeSettings();
             }
+           
+
         }
 
         private async Task AddInitialSettings(SettingsViewModel viewModel)
