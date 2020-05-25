@@ -20,6 +20,10 @@ namespace LeadScraper
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
+            using (var client = new ApplicationDbContext())
+            {
+                client.Database.EnsureCreated();
+            }
         }
 
         public IConfiguration Configuration { get; }
@@ -28,7 +32,8 @@ namespace LeadScraper
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>();
+            services.AddEntityFrameworkSqlite()
+         .AddDbContext<ApplicationDbContext>();
             services.AddRazorPages();
             services.AddServerSideBlazor();
             services.AddAutoMapper(typeof(LeadScraperProfile));

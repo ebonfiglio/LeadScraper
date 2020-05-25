@@ -1,12 +1,14 @@
-﻿using LeadScraper.Domain.Models.Requests;
+﻿using LeadScraper.Domain.Models;
+using LeadScraper.Domain.Models.Requests;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LeadScraper.Domain.Contracts
 {
     public interface ISearchService
     {
-        void Search(SearchRequest request);
+         Task<List<LeadItem>> Search(SearchRequest request);
     }
 }

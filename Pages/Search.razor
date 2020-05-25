@@ -41,4 +41,13 @@
                 </select>
             </div>
         </div>
-    <button class="btn btn-outline-success" @onclick="(e=>GetLeads())">X</button>
+    <button class="btn btn-outline-success" @onclick="(e=>GetLeads())">Search</button>
+<hr />
+@if (Searching)
+{
+    <div>Searching...</div>
+}
+else
+{
+    <div>Leads Found: @LeadsFound</div>
+        }

@@ -11,6 +11,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace LeadScraper.Domain.Services
 {
@@ -24,13 +25,13 @@ namespace LeadScraper.Domain.Services
             _settingsService = settingsService;
             _whoIsServerService = whoIsServerService;
         }
-        public async void Search(SearchRequest request)
+        public async Task<List<LeadItem>> Search(SearchRequest request)
         {
             var settings = await _settingsService.GetAsync();
             SearchResult result = GetBingSearchResult(request, settings);
             List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
             List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
-
+            return await Task.Run(()=>leads);
 
         }
 
@@ -39,6 +40,7 @@ namespace LeadScraper.Domain.Services
         {
             string uriQuery = ConstructSearchUri(request);
             string json = GetSearchResultJson(uriQuery, settings);
+            dynamic pardjson = JsonConvert.DeserializeObject(json);
             SearchResult result = JsonConvert.DeserializeObject<SearchResult>(json);
            
             return result;
@@ -52,7 +54,7 @@ namespace LeadScraper.Domain.Services
             uriQuery = uriQuery + "&count=" + request.ResultsPerPage;
             uriQuery = uriQuery + "&offset=" + ((request.StartingPage - 1) * request.ResultsPerPage);
 
-            if (request.CountryCode == "All") return uriQuery;
+            if (request.CountryCode == "All" || request.CountryCode == null) return uriQuery;
 
             uriQuery = uriQuery + "&cc=" + request.CountryCode;
 

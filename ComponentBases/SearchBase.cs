@@ -19,6 +19,10 @@ namespace LeadScraper.ComponentBases
       
         public SearchViewModel Search { get; set; } = new SearchViewModel();
         public List<CountryModel> CountryList { get; set; }
+
+        public int LeadsFound { get; set; } = 0;
+
+        public bool Searching { get; set; } = false;
         protected override Task OnInitializedAsync()
         {
             InitializeSettings();
@@ -290,7 +294,10 @@ namespace LeadScraper.ComponentBases
             searchRequest.ResultsPerPage = Search.ResultsPerPage;
             searchRequest.SearchTerm = Search.SearchTerm;
             searchRequest.StartingPage = Search.StartingPage;
-            _searchService.Search(searchRequest);
+            Searching = true;
+            var leads  = _searchService.Search(searchRequest).GetAwaiter().GetResult();
+            LeadsFound = leads?.Count ?? 0;
+            Searching = false;
         }
     }
 
