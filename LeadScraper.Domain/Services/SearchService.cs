@@ -9,8 +9,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace LeadScraper.Domain.Services
@@ -31,7 +33,8 @@ namespace LeadScraper.Domain.Services
             SearchResult result = GetBingSearchResult(request, settings);
             List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
             List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
-            return await Task.Run(()=>leads);
+            List<LeadItem> finalLeads = GetPhoneNumber(leads);
+            return await Task.Run(() => finalLeads);
 
         }
 
@@ -42,7 +45,7 @@ namespace LeadScraper.Domain.Services
             string json = GetSearchResultJson(uriQuery, settings);
             dynamic pardjson = JsonConvert.DeserializeObject(json);
             SearchResult result = JsonConvert.DeserializeObject<SearchResult>(json);
-           
+
             return result;
 
 
@@ -86,7 +89,7 @@ namespace LeadScraper.Domain.Services
         private static bool UriEndsWithWhiteListTld(SettingResponse settings, WebPagesValue webPage)
         {
             List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
-            return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.EndsWith(s)) || whiteListTldList.Any(s => webPage.Url.AbsoluteUri.EndsWith(s + "/"));
+            return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
         private static string CleanUri(SettingResponse settings, string uri, WebPagesValue webPage)
@@ -107,36 +110,78 @@ namespace LeadScraper.Domain.Services
 
         private static string FindContactUrl(WebPagesValue webPage)
         {
-            return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("Contact"))?.Url?.ToString();
-            
+            var contact = webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("Contact"))?.Url?.ToString();
+            if (contact != null) return contact;
+            return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("About"))?.Url?.ToString();
         }
 
         private static List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
         {
             List<LeadItem> leads = new List<LeadItem>();
-            
+
             foreach (var webPage in result.WebPages.Value)
             {
                 if (!UriContainsBlackListTerm(settings, webPage) && UriContainsWhiteListTld(settings, webPage))
                 {
-                    foreach(var tld in settings.WhiteListTlds.Split(','))
-                    {
-                        var server = whoIsServers.FirstOrDefault(l => l.Tld == tld);
-                        var whoIsInfo = GetWhoisInformation(server.Server, webPage.Url.ToString());
-                    }
+                    //foreach(var tld in settings.WhiteListTlds.Split(','))
+                    //{
+                    //    var server = whoIsServers.FirstOrDefault(l => l.Tld == tld);
+                    //    if (server == null) break;
+                    //    var whoIsInfo = GetWhoisInformation(server.Server, webPage.Url.Host);
+
+                    //}
                     LeadItem lead = new LeadItem();
                     lead.Name = webPage.Name;
                     lead.Url = webPage.Url.ToString();
-                    lead.AbsoluteUri = CleanUri(settings, webPage.Url.AbsoluteUri, webPage);
+                    lead.Host = webPage.Url.Host;
                     lead.ContactUrl = FindContactUrl(webPage);
                     leads.Add(lead);
 
                 }
 
             }
-            return leads = leads.GroupBy(elem => elem.AbsoluteUri).Select(group => group.First()).ToList();
+
+            return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToList();
         }
 
+        private static List<LeadItem> GetPhoneNumber(List<LeadItem> leads)
+        {
+            var httpClient = new HttpClient();
+            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
+            List<LeadItem> finalList = new List<LeadItem>();
+            Regex phoneNumExp = new Regex(@"(\({0,1}\d{3}\){0,1}[- \.]\d{3}[- \.]\d{4})|(\+\d{2}-\d{2,4}-\d{3,4}-\d{3,4})");
+            foreach (var lead in leads)
+            {
+                string html = "";
+                try
+                {
+                    var url = lead.ContactUrl ?? lead.Url;
+                    html = httpClient.GetStringAsync(url).Result;
+                    int phoneIndex = html.IndexOf("phone");
+                    if (phoneIndex == -1)
+                    {
+                        phoneIndex = html.IndexOf("tel");
+                    }
+                    if (phoneIndex == -1) throw new ArgumentException("no phone number on page");
+                    var shortHtml = html.Substring(phoneIndex);
+
+                    var match = phoneNumExp.Match(shortHtml);
+
+                    if (!match.Success) throw new ArgumentException("no phone number on page");
+                    lead.Phone = match.Value;
+
+                }
+                catch (Exception ex)
+                {
+                    string number = "COULDNT SCRAPE";
+                    lead.Phone = number;
+
+                }
+                finalList.Add(lead);
+
+            }
+            return finalList;
+        }
         private static string GetWhoisInformation(string whoisServer, string url)
         {
             StringBuilder stringBuilderResult = new StringBuilder();

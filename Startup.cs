@@ -12,6 +12,7 @@ using LeadScraper.Domain.Contracts;
 using LeadScraper.Domain.Services;
 using AutoMapper;
 using LeadScraper.Domain.Mapper;
+using Microsoft.EntityFrameworkCore;
 
 namespace LeadScraper
 {
@@ -23,6 +24,7 @@ namespace LeadScraper
             using (var client = new ApplicationDbContext())
             {
                 client.Database.EnsureCreated();
+                client.Database.Migrate();
             }
         }
 
@@ -32,6 +34,7 @@ namespace LeadScraper
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+
             services.AddEntityFrameworkSqlite()
          .AddDbContext<ApplicationDbContext>();
             services.AddRazorPages();

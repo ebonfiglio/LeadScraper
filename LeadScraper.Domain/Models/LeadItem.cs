@@ -13,6 +13,6 @@ namespace LeadScraper.Domain.Models
             public string ContactUrl { get; set; }
             public string Phone { get; set; }
 
-            public string AbsoluteUri { get; set; }
+            public string Host { get; set; }
     }
 }

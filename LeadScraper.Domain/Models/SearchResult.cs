@@ -136,7 +136,7 @@ namespace LeadScraper.Domain.Models
         public DateTimeOffset DateLastCrawled { get; set; }
 
         [JsonProperty("language")]
-        public Language Language { get; set; }
+        public string Language { get; set; }
 
         [JsonProperty("isNavigational")]
         public bool IsNavigational { get; set; }
@@ -154,9 +154,8 @@ namespace LeadScraper.Domain.Models
         public string Name { get; set; }
     }
 
-    public enum AnswerType { WebPages };
+    public enum AnswerType { WebPages, Images, Videos, News, RelatedSearches };
 
-    public enum Language { Ar, En };
 
     public partial class Welcome
     {
@@ -177,7 +176,6 @@ namespace LeadScraper.Domain.Models
             Converters =
             {
                 AnswerTypeConverter.Singleton,
-                LanguageConverter.Singleton,
                 new IsoDateTimeConverter { DateTimeStyles = DateTimeStyles.AssumeUniversal }
             },
         };
@@ -217,49 +215,7 @@ namespace LeadScraper.Domain.Models
         public static readonly AnswerTypeConverter Singleton = new AnswerTypeConverter();
     }
 
-    internal class LanguageConverter : JsonConverter
-    {
-        public override bool CanConvert(Type t) => t == typeof(Language) || t == typeof(Language?);
-
-        public override object ReadJson(JsonReader reader, Type t, object existingValue, JsonSerializer serializer)
-        {
-            if (reader.TokenType == JsonToken.Null) return null;
-            var value = serializer.Deserialize<string>(reader);
-            switch (value)
-            {
-                case "ar":
-                    return Language.Ar;
-                case "en":
-                    return Language.En;
-            }
-            throw new Exception("Cannot unmarshal type Language");
-        }
-
-        public override void WriteJson(JsonWriter writer, object untypedValue, JsonSerializer serializer)
-        {
-            if (untypedValue == null)
-            {
-                serializer.Serialize(writer, null);
-                return;
-            }
-            var value = (Language)untypedValue;
-            switch (value)
-            {
-                case Language.Ar:
-                    serializer.Serialize(writer, "ar");
-                    return;
-                case Language.En:
-                    serializer.Serialize(writer, "en");
-                    return;
-            }
-            throw new Exception("Cannot marshal type Language");
-        }
-
-
-
-        public static readonly LanguageConverter Singleton = new LanguageConverter();
-
-    }
+    
     public partial class DeepLink
     {
         [JsonProperty("name")]

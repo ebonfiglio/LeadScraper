@@ -16,12 +16,12 @@ namespace LeadScraper.Infrastructure
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<WhoIsServer>().HasData(new WhoIsServer { Tld = "com", Server = "whois.verisign-grs.com" },
-                new WhoIsServer { Tld = "biz", Server = "whois.biz" },
-                new WhoIsServer { Tld = "net", Server = "whois.verisign-grs.com" });
+            modelBuilder.Entity<WhoIsServer>().HasData(new WhoIsServer { Tld = ".com", Server = "whois.verisign-grs.com" },
+                new WhoIsServer { Tld = ".biz", Server = "whois.biz" },
+                new WhoIsServer { Tld = ".net", Server = "whois.verisign-grs.com" });
         }
         protected override void OnConfiguring(DbContextOptionsBuilder options)
-              => options.UseSqlite("Data Source=LeadScraperDb.db");
+              => options.UseSqlite("Filename=LeadScraperDb.db");
 
     public virtual DbSet<Setting> Settings { get; set; }
     public virtual DbSet<WhoIsServer> WhoIsServers { get; set; }

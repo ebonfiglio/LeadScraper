@@ -5,6 +5,7 @@ using LeadScraper.Infrastructure.Contracts;
 using LeadScraper.Infrastructure.Entities;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace LeadScraper.Domain.Services
@@ -20,7 +21,8 @@ namespace LeadScraper.Domain.Services
         }
         public List<WhoIsServerResponse> GetAll()
         {
-            return _mapper.Map<List<WhoIsServerResponse>>(_whoIsServerRepository.GetAll());
+            List<WhoIsServerResponse> responseList = _whoIsServerRepository.GetAll().Select(l => new WhoIsServerResponse() { Tld = l.Tld, Server = l.Server }).ToList();
+            return responseList;
         }
 
     }
