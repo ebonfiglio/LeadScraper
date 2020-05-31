@@ -30,4 +30,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="wwwroot\Content\searching-spinner.gif" />
+  </ItemGroup>
 </Project>

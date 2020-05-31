@@ -1,0 +1,24 @@
+﻿
+@code {
+
+    public bool Searching { get; set; } = false;
+    public int LeadsFound { get; set; } = 0;
+    public void Refresh(bool searching, int leadsFound)
+    {
+        Searching = searching;
+        LeadsFound = leadsFound;
+        StateHasChanged();
+    }
+}
+
+@if (Searching)
+{
+    <div>Searching...</div>
+    <div>
+        <img src="~/Content/searching-spinner.gif" />
+    </div>
+}
+else
+{
+    <div>Leads Found: @LeadsFound</div>
+}

@@ -9,6 +9,6 @@ namespace LeadScraper.Domain.Contracts
 {
     public interface ISearchService
     {
-         Task<List<LeadItem>> Search(SearchRequest request);
+         List<LeadItem> Search(SearchRequest request);
     }
 }

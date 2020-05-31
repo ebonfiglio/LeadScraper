@@ -1,6 +1,8 @@
 ﻿using LeadScraper.Domain.Contracts;
+using LeadScraper.Domain.Models;
 using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Models;
+using LeadScraper.Shared;
 using LeadScraper.ViewModels;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
@@ -16,13 +18,18 @@ namespace LeadScraper.ComponentBases
     {
         [Inject]
         ISearchService _searchService { get; set; }
+
+        [Inject]
+        IWriteFileService _writeFileService { get; set; }
       
         public SearchViewModel Search { get; set; } = new SearchViewModel();
         public List<CountryModel> CountryList { get; set; }
 
-        public int LeadsFound { get; set; } = 0;
+        protected SearchResultComponent ChildComponent;
 
-        public bool Searching { get; set; } = false;
+
+        public int LeadsFound { get; set; }
+
         protected override Task OnInitializedAsync()
         {
             InitializeSettings();
@@ -294,10 +301,11 @@ namespace LeadScraper.ComponentBases
             searchRequest.ResultsPerPage = Search.ResultsPerPage;
             searchRequest.SearchTerm = Search.SearchTerm;
             searchRequest.StartingPage = Search.StartingPage;
-            Searching = true;
-            var leads  = _searchService.Search(searchRequest).GetAwaiter().GetResult();
+            ChildComponent.Refresh(true, 0);
+            var leads  = _searchService.Search(searchRequest);
             LeadsFound = leads?.Count ?? 0;
-            Searching = false;
+            _writeFileService.WriteToFile(leads);
+            ChildComponent.Refresh(false, LeadsFound);
         }
     }
 

@@ -45,6 +45,7 @@ namespace LeadScraper
             services.AddScoped<ISearchService, SearchService>();
             services.AddScoped<IWhoIsServerRepository, WhoIsServerRepository>();
             services.AddScoped<IWhoIsServerService, WhoIsServerService>();
+            services.AddScoped<IWriteFileService, WritefileService>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

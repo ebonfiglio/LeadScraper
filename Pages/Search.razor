@@ -41,13 +41,6 @@
                 </select>
             </div>
         </div>
-    <button class="btn btn-outline-success" @onclick="(e=>GetLeads())">Search</button>
+    <button class="btn btn-outline-success" @onclick="@GetLeads">Search</button>
 <hr />
-@if (Searching)
-{
-    <div>Searching...</div>
-}
-else
-{
-    <div>Leads Found: @LeadsFound</div>
-        }
+<SearchResultComponent  @ref="ChildComponent"></SearchResultComponent>
