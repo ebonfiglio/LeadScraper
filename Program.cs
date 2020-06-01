@@ -10,7 +10,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ElectronNET.API;
 
-
 namespace LeadScraper
 {
     public class Program
@@ -24,7 +23,8 @@ namespace LeadScraper
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
-                    webBuilder.UseStartup<Startup>().UseElectron(args);
+                    webBuilder.UseElectron(args);
+                    webBuilder.UseStartup<Startup>();
                 });
     }
 }
