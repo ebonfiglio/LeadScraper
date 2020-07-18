@@ -6,18 +6,22 @@
   <ItemGroup>
     <Compile Remove="LeadScraper.Domain\**" />
     <Compile Remove="LeadScraper.Infrastructure\**" />
+    <Compile Remove="LeadScraper.MVC\**" />
     <Content Remove="LeadScraper.Domain\**" />
     <Content Remove="LeadScraper.Infrastructure\**" />
+    <Content Remove="LeadScraper.MVC\**" />
     <EmbeddedResource Remove="LeadScraper.Domain\**" />
     <EmbeddedResource Remove="LeadScraper.Infrastructure\**" />
+    <EmbeddedResource Remove="LeadScraper.MVC\**" />
     <None Remove="LeadScraper.Domain\**" />
     <None Remove="LeadScraper.Infrastructure\**" />
+    <None Remove="LeadScraper.MVC\**" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="9.0.0" />
     <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="7.0.0" />
-    <PackageReference Include="ElectronNET.API" Version="8.31.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.4">
+    <PackageReference Include="ElectronNET.API" Version="9.31.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="3.1.5">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
@@ -28,5 +32,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="wwwroot\Content\searching-spinner.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="electron.manifest.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 </Project>

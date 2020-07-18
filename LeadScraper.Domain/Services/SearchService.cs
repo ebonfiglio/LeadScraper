@@ -27,14 +27,14 @@ namespace LeadScraper.Domain.Services
             _settingsService = settingsService;
             _whoIsServerService = whoIsServerService;
         }
-        public List<LeadItem> Search(SearchRequest request)
+        public async Task<List<LeadItem>> Search(SearchRequest request)
         {
-            var settings = _settingsService.GetAsync().GetAwaiter().GetResult();
+            var settings = await _settingsService.GetAsync();
             SearchResult result = GetBingSearchResult(request, settings);
             List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
             List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
             List<LeadItem> finalLeads = GetPhoneNumber(leads);
-            return finalLeads;
+            return await Task.Run(()=> finalLeads);
 
         }
 

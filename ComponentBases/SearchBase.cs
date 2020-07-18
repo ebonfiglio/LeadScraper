@@ -293,7 +293,7 @@ namespace LeadScraper.ComponentBases
 ]";
         }
 
-        public void GetLeads()
+        public async Task GetLeads()
         {
             SearchRequest searchRequest = new SearchRequest();
             searchRequest.CountryCode = Search.CountryCode;
@@ -302,7 +302,8 @@ namespace LeadScraper.ComponentBases
             searchRequest.SearchTerm = Search.SearchTerm;
             searchRequest.StartingPage = Search.StartingPage;
             ChildComponent.Refresh(true, 0);
-            var leads  = _searchService.Search(searchRequest);
+            await Task.Yield();
+            var leads  = await _searchService.Search(searchRequest);
             LeadsFound = leads?.Count ?? 0;
             _writeFileService.WriteToFile(leads);
             ChildComponent.Refresh(false, LeadsFound);

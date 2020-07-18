@@ -13,6 +13,7 @@ using LeadScraper.Domain.Services;
 using AutoMapper;
 using LeadScraper.Domain.Mapper;
 using Microsoft.EntityFrameworkCore;
+using ElectronNET.API.Entities;
 
 namespace LeadScraper
 {
@@ -24,7 +25,6 @@ namespace LeadScraper
             using (var client = new ApplicationDbContext())
             {
                 client.Database.EnsureCreated();
-                client.Database.Migrate();
             }
         }
 
@@ -70,7 +70,28 @@ namespace LeadScraper
                 endpoints.MapFallbackToPage("/_Host");
             });
 
-            Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());
+           Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());
+           // if (HybridSupport.IsElectronActive)
+            //{
+               // ElectronBootstrap();
+            //}
         }
+        //public async void ElectronBootstrap()
+        //{
+        //    WebPreferences wp = new WebPreferences();
+        //    wp.NodeIntegration = false;
+        //    var browserWindow = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
+        //    {
+        //        Width = 1152,
+        //        Height = 940,
+        //        Show = false,
+        //        WebPreferences = wp
+        //    });
+
+        //    await browserWindow.WebContents.Session.ClearCacheAsync();
+
+        //    browserWindow.OnReadyToShow += () => browserWindow.Show();
+        //    browserWindow.SetTitle(Configuration["DemoTitleInSettings"]);
+        //}
     }
 }
