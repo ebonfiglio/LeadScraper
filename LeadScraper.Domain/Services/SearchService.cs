@@ -21,16 +21,18 @@ namespace LeadScraper.Domain.Services
     {
         private readonly ISettingsService _settingsService;
         private readonly IWhoIsServerService _whoIsServerService;
-        const string endpoint = "https://api.cognitive.microsoft.com/bing/v7.0/search";
-        public SearchService(ISettingsService settingsService, IWhoIsServerService whoIsServerService)
+        private readonly IHttpClientFactory _httpClientFactory;
+        const string endpoint = "https://api.bing.microsoft.com/v7.0/search";
+        public SearchService(ISettingsService settingsService, IWhoIsServerService whoIsServerService, IHttpClientFactory httpClientFactory)
         {
             _settingsService = settingsService;
             _whoIsServerService = whoIsServerService;
+            _httpClientFactory = httpClientFactory;
         }
         public async Task<List<LeadItem>> Search(SearchRequest request)
         {
             var settings = await _settingsService.GetAsync();
-            SearchResult result = GetBingSearchResult(request, settings);
+            SearchResult result = await GetBingSearchResult(request, settings);
             List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
             List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
             List<LeadItem> finalLeads = GetPhoneNumber(leads);
@@ -39,19 +41,17 @@ namespace LeadScraper.Domain.Services
         }
 
 
-        private static SearchResult GetBingSearchResult(SearchRequest request, SettingResponse settings)
+        private async Task<SearchResult> GetBingSearchResult(SearchRequest request, SettingResponse settings)
         {
             string uriQuery = ConstructSearchUri(request);
-            string json = GetSearchResultJson(uriQuery, settings);
+            string json = await GetSearchResultJson(uriQuery, settings);
             dynamic pardjson = JsonConvert.DeserializeObject(json);
             SearchResult result = JsonConvert.DeserializeObject<SearchResult>(json);
 
             return result;
-
-
         }
 
-        private static string ConstructSearchUri(SearchRequest request)
+        private string ConstructSearchUri(SearchRequest request)
         {
             var uriQuery = endpoint + "?q=" + Uri.EscapeDataString(request.SearchTerm);
             uriQuery = uriQuery + "&count=" + request.ResultsPerPage;
@@ -64,35 +64,39 @@ namespace LeadScraper.Domain.Services
             return uriQuery;
         }
 
-        private static string GetSearchResultJson(string uri, SettingResponse settings)
+        private async Task<string> GetSearchResultJson(string uri, SettingResponse settings)
         {
-            WebRequest webRequest = HttpWebRequest.Create(uri);
-            webRequest.Headers["Ocp-Apim-Subscription-Key"] = settings.BingKey;
-            HttpWebResponse webResponse = (HttpWebResponse)webRequest.GetResponseAsync().Result;
-            string json = new StreamReader(webResponse.GetResponseStream()).ReadToEnd();
+            var request = new HttpRequestMessage(HttpMethod.Get,
+            uri);
+            request.Headers.Add("Ocp-Apim-Subscription-Key", settings.BingKey);
+
+            var client = _httpClientFactory.CreateClient();
+            var response = await client.SendAsync(request);
+
+            string json = new StreamReader(response.Content.ReadAsStream()).ReadToEnd();
 
             return json;
         }
 
-        private static bool UriContainsBlackListTerm(SettingResponse settings, WebPagesValue webPage)
+        private bool UriContainsBlackListTerm(SettingResponse settings, WebPagesValue webPage)
         {
             List<string> blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
             return blackListTermsList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private static bool UriContainsWhiteListTld(SettingResponse settings, WebPagesValue webPage)
+        private bool UriContainsWhiteListTld(SettingResponse settings, WebPagesValue webPage)
         {
             List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
             return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private static bool UriEndsWithWhiteListTld(SettingResponse settings, WebPagesValue webPage)
+        private bool UriEndsWithWhiteListTld(SettingResponse settings, WebPagesValue webPage)
         {
             List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
             return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private static string CleanUri(SettingResponse settings, string uri, WebPagesValue webPage)
+        private string CleanUri(SettingResponse settings, string uri, WebPagesValue webPage)
         {
             if (uri.IndexOf('?') > -1)
             {
@@ -108,14 +112,14 @@ namespace LeadScraper.Domain.Services
 
         }
 
-        private static string FindContactUrl(WebPagesValue webPage)
+        private string FindContactUrl(WebPagesValue webPage)
         {
             var contact = webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("Contact"))?.Url?.ToString();
             if (contact != null) return contact;
             return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("About"))?.Url?.ToString();
         }
 
-        private static List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
+        private List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
         {
             List<LeadItem> leads = new List<LeadItem>();
 
@@ -144,7 +148,7 @@ namespace LeadScraper.Domain.Services
             return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToList();
         }
 
-        private static List<LeadItem> GetPhoneNumber(List<LeadItem> leads)
+        private List<LeadItem> GetPhoneNumber(List<LeadItem> leads)
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
@@ -182,7 +186,7 @@ namespace LeadScraper.Domain.Services
             }
             return finalList;
         }
-        private static string GetWhoisInformation(string whoisServer, string url)
+        private string GetWhoisInformation(string whoisServer, string url)
         {
             StringBuilder stringBuilderResult = new StringBuilder();
             TcpClient tcpClinetWhois = new TcpClient(whoisServer, 43);
