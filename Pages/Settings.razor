@@ -5,7 +5,7 @@
 <h1>Settings</h1>
 
 
-@if (Settings.BlackListTerms == null || Settings.WhiteListTlds == null)
+@if (BlackListTerms == null || WhiteListTlds == null)
 {
     <p><em>Loading...</em></p>
 }
@@ -18,43 +18,45 @@ else
         </div>
     }
     <div class="form-group mb-5">
-        <label for="bingKey" class="sub-header">Bing Key</label>
-        <input @bind="Settings.BingKey" type="text" class="form-control" id="bingKey">
-        <small id="emailHelp" class="form-text text-muted">A Bing Search API key will allow more searchers per month.</small>
-        <button class="btn btn-primary"  @onclick="@(e => SaveKey())">Save Key</button>
+        <MatTextField @bind-Value="@BingKey"
+                  Label="Bing Key"
+                  HelperText="A Bing Search API key will allow more searchers per month."
+                  HelperTextPersistent="true"
+                  Style="min-width:550px; width:750px;"></MatTextField>
+        <MatButton Raised="true" OnClick="@SaveKey" Class="my-2">Save Key</MatButton>
     </div>
-    <div class="form-inline mb-5">
-        <div class="form-group">
-            <label for="blackListTerm" class="sub-header">Black Listed Terms</label>
-            <input type="text" class="form-control mx-2" @bind="AddedTerm">
-            <button class="btn btn-primary" @onclick="(e => AddBlackListTerm(AddedTerm))">Add</button>
-        </div>
-    </div>
-
-    <div class="row mb-5">
-        @foreach (var term in Settings.BlackListTerms)
-        {
-            <div class="col-5 col-md-4 col-lg-3 col-xl-2">
-                <h4><span class="badge badge-danger">@term<button class="btn btn-sm btn-light ml-2" @onclick="@(e => DeleteTerm(term))">X</button></span></h4>
-            </div>
-        }
-    </div>
-    <div class="form-inline mb-5">
-        <div class="form-group">
-            <label for="whiteListTld" class="sub-header">White Listed TLDs</label>
-            <input type="text" class="form-control mx-2" @bind="AddedTld">
-            <button class="btn btn-primary" @onclick="(e => AddWhiteListTld(AddedTld))" >Add</button>
-        </div>
+    <div class="form-group mb-5">
+        <MatTextField @bind-Value="@AddedTerm"
+                  Label="Black Listed Term"
+                  HelperText="If a URL contains the following term(s) it will be removed from the result set."
+                  HelperTextPersistent="true"
+                  ></MatTextField>
+        <MatButton Raised="true" OnClick="@(e => AddBlackListTerm(AddedTerm))" Class="my-2">Add</MatButton>
     </div>
 
     <div class="row mb-5">
-        @foreach (var tld in Settings.WhiteListTlds)
-        {
-            <div class="col-5 col-md-4 col-lg-3 col-xl-2">
-                <h4><span class="badge badge-success">@tld<button class="btn btn-sm btn-light ml-2" @onclick="(e => DeleteTld(tld))">X</button></span></h4>
-
-            </div>
-        }
+        <MatChipSet @ref="chipsetTerms">
+            @foreach (var term in BlackListTerms)
+            {
+                <MatChip class="mt-1 blackList-chip" Label=@term TrailingIcon="clear" TrailingIconClick="DeleteTerm"></MatChip>
+            }
+        </MatChipSet>
+    </div>
+    <div class="form-group mb-5">
+        <MatTextField @bind-Value="@AddedTld"
+                  Label="White Listed TLD"
+                  HelperText="Only URLs with the follwing TLDs will be included in the result set."
+                  HelperTextPersistent="true"
+                  ></MatTextField>
+        <MatButton Raised="true" OnClick="@(e => AddWhiteListTld(AddedTld))" Class="my-2">Add</MatButton>
+    </div>
+    <div class="row mb-5">
+        <MatChipSet @ref="chipsetTlds">
+            @foreach (var tld in WhiteListTlds)
+            {
+                <MatChip class="mt-1 whiteList-chip" Label=@tld TrailingIcon="clear" TrailingIconClick="DeleteTld"></MatChip>
+            }
+        </MatChipSet>
     </div>
 
 }

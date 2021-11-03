@@ -21,12 +21,15 @@ namespace LeadScraper.ComponentBases
 
         [Inject]
         IWriteFileService _writeFileService { get; set; }
-      
-        public SearchViewModel Search { get; set; } = new SearchViewModel();
+
+        public string SearchTerm { get; set; }
+        public int ResultsPerPage { get; set; }
+        public int StartingPage { get; set; }
+        public int Pages { get; set; }
+        public string CountryCode { get; set; }
         public List<CountryModel> CountryList { get; set; }
 
         protected SearchResultComponent ChildComponent;
-
 
         public int LeadsFound { get; set; }
 
@@ -296,11 +299,11 @@ namespace LeadScraper.ComponentBases
         public async Task GetLeads()
         {
             SearchRequest searchRequest = new SearchRequest();
-            searchRequest.CountryCode = Search.CountryCode;
-            searchRequest.Pages = Search.Pages;
-            searchRequest.ResultsPerPage = Search.ResultsPerPage;
-            searchRequest.SearchTerm = Search.SearchTerm;
-            searchRequest.StartingPage = Search.StartingPage;
+            searchRequest.CountryCode = CountryCode;
+            searchRequest.Pages = Pages;
+            searchRequest.ResultsPerPage = ResultsPerPage;
+            searchRequest.SearchTerm = SearchTerm;
+            searchRequest.StartingPage = StartingPage;
             ChildComponent.Refresh(true, 0);
             await Task.Yield();
             var leads  = await _searchService.Search(searchRequest);

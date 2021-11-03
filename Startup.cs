@@ -14,6 +14,7 @@ using AutoMapper;
 using LeadScraper.Domain.Mapper;
 using Microsoft.EntityFrameworkCore;
 using ElectronNET.API.Entities;
+using MatBlazor;
 
 namespace LeadScraper
 {
@@ -34,6 +35,7 @@ namespace LeadScraper
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMatBlazor();
             services.AddHttpClient();
             services.AddEntityFrameworkSqlite()
          .AddDbContext<ApplicationDbContext>();

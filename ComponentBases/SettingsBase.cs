@@ -6,6 +6,7 @@ using LeadScraper.Domain.Models.Responses;
 using LeadScraper.Infrastructure.Entities;
 using LeadScraper.Models;
 using LeadScraper.ViewModels;
+using MatBlazor;
 using Microsoft.AspNetCore.Components;
 using System;
 using System.Collections.Generic;
@@ -23,11 +24,19 @@ namespace LeadScraper.ComponentBases
         {
             await InitializeSettings();
         }
-        public SettingsViewModel Settings { get; set; } = new SettingsViewModel();
+        public string BingKey { get; set; }
+
+        public List<string> BlackListTerms { get; set; }
+
+        public List<string> WhiteListTlds { get; set; }
 
         public string AddedTld { get; set; }
 
         public string AddedTerm { get; set; }
+
+        public MatChipSet chipsetTerms = null;
+
+        public MatChipSet chipsetTlds = null;
 
         public ErrorModel Error { get; set; } = new ErrorModel(false);
 
@@ -40,16 +49,16 @@ namespace LeadScraper.ComponentBases
             if (response != null)
             {
                 SettingId = response.Id;
-                Settings.BingKey = response.BingKey;
-                Settings.BlackListTerms = response.BlackListTerms?.Split(",").ToList();
-                Settings.WhiteListTlds = response.WhiteListTlds?.Split(",").ToList();
+                BingKey = response.BingKey;
+                BlackListTerms = response.BlackListTerms?.Split(",").ToList();
+                WhiteListTlds = response.WhiteListTlds?.Split(",").ToList();
             }
             else
             {
-                Settings.BingKey = "";
-                Settings.BlackListTerms = DefaultSettingsHelper.DefaultBlackListTerms().Split(",").ToList();
-                Settings.WhiteListTlds = DefaultSettingsHelper.DefaultWhiteListTlds().Split(",").ToList();
-                await AddInitialSettings(Settings);
+                BingKey = "";
+                BlackListTerms = DefaultSettingsHelper.DefaultBlackListTerms().Split(",").ToList();
+                WhiteListTlds = DefaultSettingsHelper.DefaultWhiteListTlds().Split(",").ToList();
+                await AddInitialSettings();
                 StateHasChanged();
             }
             
@@ -58,48 +67,48 @@ namespace LeadScraper.ComponentBases
 
         public async Task AddBlackListTerm(string term)
         {
-            Settings.BlackListTerms.Add(term);
-            await UpdateSettings(Settings);
+            BlackListTerms.Add(term);
+            await UpdateSettings();
         }
 
         public async Task AddWhiteListTld(string tld)
         {
-            Settings.WhiteListTlds.Add(tld);
-            await UpdateSettings(Settings);
-
+            WhiteListTlds.Add(tld);
+            await UpdateSettings();
         }
 
         public async Task AddBingKey(string bingKey)
         {
-            Settings.BingKey = bingKey;
-            await UpdateSettings(Settings);
+            BingKey = bingKey;
+            await UpdateSettings();
 
         }
 
-        public async Task DeleteTld(string tld)
+        public async Task DeleteTld(MatChip chip)
         {
-            Settings.WhiteListTlds.Remove(tld);
-            await UpdateSettings(Settings);
-
+            WhiteListTlds.Remove(chip.Label);
+            chipsetTerms?.UnregisterChip(chip);
+            await UpdateSettings();
         }
-        public async Task DeleteTerm(string term)
+        public async Task DeleteTerm(MatChip chip)
         {
-            Settings.BlackListTerms.Remove(term);
-            await UpdateSettings(Settings);
+            BlackListTerms.Remove(chip.Label);
+            chipsetTerms?.UnregisterChip(chip);
+            await UpdateSettings();
         }
 
         public async Task SaveKey()
         {
-            await UpdateSettings(Settings);
+            await UpdateSettings();
         }
 
-        private async Task UpdateSettings(SettingsViewModel viewModel)
+        private async Task UpdateSettings()
         {
             SettingRequest request = new SettingRequest();
             request.Id = SettingId;
-            request.BingKey = Settings.BingKey;
-            request.BlackListTerms = string.Join(",", Settings.BlackListTerms);
-            request.WhiteListTlds = string.Join(",", Settings.WhiteListTlds);
+            request.BingKey = BingKey;
+            request.BlackListTerms = string.Join(",", BlackListTerms);
+            request.WhiteListTlds = string.Join(",", WhiteListTlds);
             var result = await _settingsService.EditAsync(request);
 
             if (result == null)
@@ -108,17 +117,15 @@ namespace LeadScraper.ComponentBases
                 Error.ErrorMessage = "Error saving setting.";
                 await InitializeSettings();
             }
-           
-
         }
 
-        private async Task AddInitialSettings(SettingsViewModel viewModel)
+        private async Task AddInitialSettings()
         {
             SettingRequest request = new SettingRequest();
             request.Id = SettingId;
-            request.BingKey = Settings.BingKey;
-            request.BlackListTerms = string.Join(",", Settings.BlackListTerms);
-            request.WhiteListTlds = string.Join(",", Settings.WhiteListTlds);
+            request.BingKey = BingKey;
+            request.BlackListTerms = string.Join(",", BlackListTerms);
+            request.WhiteListTlds = string.Join(",", WhiteListTlds);
             var result = await _settingsService.AddAsync(request);
             if (result != null)
             {
