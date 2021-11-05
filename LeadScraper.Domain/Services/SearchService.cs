@@ -29,17 +29,16 @@ namespace LeadScraper.Domain.Services
             _whoIsServerService = whoIsServerService;
             _httpClientFactory = httpClientFactory;
         }
-        public async Task<List<LeadItem>> Search(SearchRequest request)
+        public async Task<HashSet<LeadItem>> Search(SearchRequest request)
         {
             var settings = await _settingsService.GetAsync();
             SearchResult result = await GetBingSearchResult(request, settings);
             List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
-            List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
-            List<LeadItem> finalLeads = GetPhoneNumber(leads);
+            HashSet<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
+            HashSet<LeadItem> finalLeads = GetPhoneNumber(leads);
             return await Task.Run(()=> finalLeads);
 
         }
-
 
         private async Task<SearchResult> GetBingSearchResult(SearchRequest request, SettingResponse settings)
         {
@@ -119,12 +118,13 @@ namespace LeadScraper.Domain.Services
             return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("About"))?.Url?.ToString();
         }
 
-        private List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
+        private HashSet<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
         {
-            List<LeadItem> leads = new List<LeadItem>();
+            HashSet<LeadItem> leads = new HashSet<LeadItem>();
 
             foreach (var webPage in result.WebPages.Value)
             {
+                //TODO: Optimize this
                 if (!UriContainsBlackListTerm(settings, webPage) && UriContainsWhiteListTld(settings, webPage))
                 {
                     //foreach(var tld in settings.WhiteListTlds.Split(','))
@@ -144,15 +144,14 @@ namespace LeadScraper.Domain.Services
                 }
 
             }
-
-            return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToList();
+            return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToHashSet();
         }
 
-        private List<LeadItem> GetPhoneNumber(List<LeadItem> leads)
+        private HashSet<LeadItem> GetPhoneNumber(HashSet<LeadItem> leads)
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
-            List<LeadItem> finalList = new List<LeadItem>();
+            HashSet<LeadItem> finalList = new HashSet<LeadItem>();
             Regex phoneNumExp = new Regex(@"(\({0,1}\d{3}\){0,1}[- \.]\d{3}[- \.]\d{4})|(\+\d{2}-\d{2,4}-\d{3,4}-\d{3,4})");
             foreach (var lead in leads)
             {
@@ -166,12 +165,22 @@ namespace LeadScraper.Domain.Services
                     {
                         phoneIndex = html.IndexOf("tel");
                     }
-                    if (phoneIndex == -1) throw new ArgumentException("no phone number on page");
+                    if (phoneIndex == -1)
+                    {
+                        string number = "COULDNT SCRAPE";
+                        lead.Phone = number;
+                        continue;
+                    }
                     var shortHtml = html.Substring(phoneIndex);
 
                     var match = phoneNumExp.Match(shortHtml);
 
-                    if (!match.Success) throw new ArgumentException("no phone number on page");
+                    if (!match.Success)
+                    {
+                        string number = "COULDNT SCRAPE";
+                        lead.Phone = number;
+                        continue;
+                    }
                     lead.Phone = match.Value;
 
                 }

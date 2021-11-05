@@ -1,21 +1,16 @@
-﻿using AutoMapper;
-using LeadScraper.Domain.Contracts;
+﻿using LeadScraper.Domain.Contracts;
 using LeadScraper.Domain.Helpers;
 using LeadScraper.Domain.Models.Requests;
-using LeadScraper.Domain.Models.Responses;
-using LeadScraper.Infrastructure.Entities;
 using LeadScraper.Models;
-using LeadScraper.ViewModels;
 using MatBlazor;
 using Microsoft.AspNetCore.Components;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace LeadScraper.ComponentBases
+namespace LeadScraper.ViewModels
 {
-    public class SettingsBase : ComponentBase
+    public class SettingsViewModel : ComponentBase
     {
         [Inject]
         ISettingsService _settingsService { get; set; }

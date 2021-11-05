@@ -7,6 +7,6 @@ namespace LeadScraper.Domain.Contracts
 {
     public interface IWriteFileService
     {
-        void WriteToFile(List<LeadItem> leads);
+        void WriteToFile(HashSet<LeadItem> leads);
     }
 }

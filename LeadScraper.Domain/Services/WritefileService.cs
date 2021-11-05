@@ -9,7 +9,7 @@ namespace LeadScraper.Domain.Services
 {
     public class WritefileService : IWriteFileService
     {
-        public void WriteToFile(List<LeadItem> leads)
+        public void WriteToFile(HashSet<LeadItem> leads)
         {
             using (StreamWriter file = new StreamWriter(@"C:\Users\Public\" + DateTime.Now.ToString("yyyyMMdd-HHmmss").Replace(@"\", "-") + "Leads.txt"))
             {

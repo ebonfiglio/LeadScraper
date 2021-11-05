@@ -1,6 +1,6 @@
 ﻿@page "/settings"
-@using LeadScraper.ComponentBases
-@inherits SettingsBase
+@using LeadScraper.ViewModels
+@inherits SettingsViewModel
 
 <h1>Settings</h1>
 
@@ -22,6 +22,8 @@ else
                   Label="Bing Key"
                   HelperText="A Bing Search API key will allow more searchers per month."
                   HelperTextPersistent="true"
+                  Outlined="true"
+                  Icon="vpn_key"
                   Style="min-width:550px; width:750px;"></MatTextField>
         <MatButton Raised="true" OnClick="@SaveKey" Class="my-2">Save Key</MatButton>
     </div>
@@ -30,6 +32,8 @@ else
                   Label="Black Listed Term"
                   HelperText="If a URL contains the following term(s) it will be removed from the result set."
                   HelperTextPersistent="true"
+                  Outlined="true"
+                  Icon="block"
                   ></MatTextField>
         <MatButton Raised="true" OnClick="@(e => AddBlackListTerm(AddedTerm))" Class="my-2">Add</MatButton>
     </div>
@@ -47,6 +51,8 @@ else
                   Label="White Listed TLD"
                   HelperText="Only URLs with the follwing TLDs will be included in the result set."
                   HelperTextPersistent="true"
+                  Outlined="true"
+                  Icon="done_outline"
                   ></MatTextField>
         <MatButton Raised="true" OnClick="@(e => AddWhiteListTld(AddedTld))" Class="my-2">Add</MatButton>
     </div>
