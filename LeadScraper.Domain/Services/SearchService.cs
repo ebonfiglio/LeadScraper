@@ -23,6 +23,8 @@ namespace LeadScraper.Domain.Services
         private readonly IWhoIsServerService _whoIsServerService;
         private readonly IHttpClientFactory _httpClientFactory;
         const string endpoint = "https://api.bing.microsoft.com/v7.0/search";
+        private List<string> _blackListTermsList = new List<string>();
+        private List<string> _whiteListTldList = new List<string>();
         public SearchService(ISettingsService settingsService, IWhoIsServerService whoIsServerService, IHttpClientFactory httpClientFactory)
         {
             _settingsService = settingsService;
@@ -32,12 +34,13 @@ namespace LeadScraper.Domain.Services
         public async Task<HashSet<LeadItem>> Search(SearchRequest request)
         {
             var settings = await _settingsService.GetAsync();
+            _blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
+            _whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
             SearchResult result = await GetBingSearchResult(request, settings);
             List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
             HashSet<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
             HashSet<LeadItem> finalLeads = GetPhoneNumber(leads);
             return await Task.Run(()=> finalLeads);
-
         }
 
         private async Task<SearchResult> GetBingSearchResult(SearchRequest request, SettingResponse settings)
@@ -77,22 +80,19 @@ namespace LeadScraper.Domain.Services
             return json;
         }
 
-        private bool UriContainsBlackListTerm(SettingResponse settings, WebPagesValue webPage)
+        private bool UriContainsBlackListTerm(WebPagesValue webPage)
         {
-            List<string> blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
-            return blackListTermsList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
+            return _blackListTermsList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private bool UriContainsWhiteListTld(SettingResponse settings, WebPagesValue webPage)
+        private bool UriContainsWhiteListTld(WebPagesValue webPage)
         {
-            List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
-            return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
+            return _whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private bool UriEndsWithWhiteListTld(SettingResponse settings, WebPagesValue webPage)
+        private bool UriEndsWithWhiteListTld(WebPagesValue webPage)
         {
-            List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
-            return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
+            return _whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
         private string CleanUri(SettingResponse settings, string uri, WebPagesValue webPage)
@@ -102,7 +102,7 @@ namespace LeadScraper.Domain.Services
                 uri = uri.Substring(0, uri.IndexOf('?'));
             }
 
-            if (UriEndsWithWhiteListTld(settings, webPage)) return uri;
+            if (UriEndsWithWhiteListTld(webPage)) return uri;
 
             uri = uri.Replace(webPage.Url.AbsolutePath, "");
             uri = uri.Replace("!", "");
@@ -125,7 +125,7 @@ namespace LeadScraper.Domain.Services
             foreach (var webPage in result.WebPages.Value)
             {
                 //TODO: Optimize this
-                if (!UriContainsBlackListTerm(settings, webPage) && UriContainsWhiteListTld(settings, webPage))
+                if (!UriContainsBlackListTerm(webPage) && UriContainsWhiteListTld(webPage))
                 {
                     //foreach(var tld in settings.WhiteListTlds.Split(','))
                     //{
@@ -140,7 +140,6 @@ namespace LeadScraper.Domain.Services
                     lead.Host = webPage.Url.Host;
                     lead.ContactUrl = FindContactUrl(webPage);
                     leads.Add(lead);
-
                 }
 
             }
