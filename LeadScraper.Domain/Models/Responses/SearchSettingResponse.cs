@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace LeadScraper.Domain.Models.Requests
+namespace LeadScraper.Domain.Models.Responses
 {
-    public class SearchRequest
+    public class SearchSettingResponse
     {
-        public int Id { get; set; }
         public string SearchTerm { get; set; }
 
         public int ResultsPerPage { get; set; }

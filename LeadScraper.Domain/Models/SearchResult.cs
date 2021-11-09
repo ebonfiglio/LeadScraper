@@ -43,7 +43,7 @@ namespace LeadScraper.Domain.Models
     public partial class Mainline
     {
         [JsonProperty("items")]
-        public MainlineItem[] Items { get; set; }
+        public HashSet<MainlineItem> Items { get; set; }
     }
 
     public partial class MainlineItem
@@ -67,7 +67,7 @@ namespace LeadScraper.Domain.Models
     public partial class Sidebar
     {
         [JsonProperty("items")]
-        public SidebarItem[] Items { get; set; }
+        public HashSet<SidebarItem> Items { get; set; }
     }
 
     public partial class SidebarItem
@@ -85,7 +85,7 @@ namespace LeadScraper.Domain.Models
         public Uri Id { get; set; }
 
         [JsonProperty("value")]
-        public RelatedSearchesValue[] Value { get; set; }
+        public HashSet<RelatedSearchesValue> Value { get; set; }
     }
 
     public partial class RelatedSearchesValue
@@ -109,7 +109,7 @@ namespace LeadScraper.Domain.Models
         public long TotalEstimatedMatches { get; set; }
 
         [JsonProperty("value")]
-        public WebPagesValue[] Value { get; set; }
+        public HashSet<WebPagesValue> Value { get; set; }
     }
 
     public partial class WebPagesValue
@@ -142,10 +142,10 @@ namespace LeadScraper.Domain.Models
         public bool IsNavigational { get; set; }
 
         [JsonProperty("about", NullValueHandling = NullValueHandling.Ignore)]
-        public About[] About { get; set; }
+        public HashSet<About> About { get; set; }
 
         [JsonProperty("deepLinks", NullValueHandling = NullValueHandling.Ignore)]
-        public DeepLink[] DeepLinks { get; set; }
+        public HashSet<DeepLink> DeepLinks { get; set; }
     }
 
     public partial class About

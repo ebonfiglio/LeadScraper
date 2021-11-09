@@ -14,6 +14,7 @@ using AutoMapper;
 using LeadScraper.Domain.Mapper;
 using Microsoft.EntityFrameworkCore;
 using ElectronNET.API.Entities;
+using MatBlazor;
 
 namespace LeadScraper
 {
@@ -34,6 +35,7 @@ namespace LeadScraper
         // For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddMatBlazor();
             services.AddHttpClient();
             services.AddEntityFrameworkSqlite()
          .AddDbContext<ApplicationDbContext>();
@@ -43,6 +45,8 @@ namespace LeadScraper
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<ISearchService, SearchService>();
+            services.AddScoped<ISearchSettingService, SearchSettingService>();
+            services.AddScoped<ISearchSettingsRepository, SearchSettingsRepository>();
             services.AddScoped<IWhoIsServerRepository, WhoIsServerRepository>();
             services.AddScoped<IWhoIsServerService, WhoIsServerService>();
             services.AddScoped<IWriteFileService, WritefileService>();
@@ -71,27 +75,6 @@ namespace LeadScraper
             });
 
            Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());
-           // if (HybridSupport.IsElectronActive)
-            //{
-               // ElectronBootstrap();
-            //}
         }
-        //public async void ElectronBootstrap()
-        //{
-        //    WebPreferences wp = new WebPreferences();
-        //    wp.NodeIntegration = false;
-        //    var browserWindow = await Electron.WindowManager.CreateWindowAsync(new BrowserWindowOptions
-        //    {
-        //        Width = 1152,
-        //        Height = 940,
-        //        Show = false,
-        //        WebPreferences = wp
-        //    });
-
-        //    await browserWindow.WebContents.Session.ClearCacheAsync();
-
-        //    browserWindow.OnReadyToShow += () => browserWindow.Show();
-        //    browserWindow.SetTitle(Configuration["DemoTitleInSettings"]);
-        //}
     }
 }

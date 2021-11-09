@@ -1,24 +1,84 @@
-﻿
+﻿@using LeadScraper.Domain.Models
+
 @code {
 
     public bool Searching { get; set; } = false;
     public int LeadsFound { get; set; } = 0;
-    public void Refresh(bool searching, int leadsFound)
+    public List<LeadItem> Leads { get; set; } = new List<LeadItem>();
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        SortData(null);
+    }
+
+
+    public void Refresh(bool searching, int leadsFound, List<LeadItem> leads)
     {
         Searching = searching;
         LeadsFound = leadsFound;
+        Leads = leads;
         StateHasChanged();
     }
+
+    void SortData(MatSortChangedEvent sort)
+    {
+        if (!(sort == null || sort.Direction == MatSortDirection.None || string.IsNullOrEmpty(sort.SortId)))
+        {
+            Comparison<LeadItem> comparison = null;
+            switch (sort.SortId)
+            {
+                case "name":
+                    comparison = (s1, s2) => string.Compare(s1.Name, s2.Name, StringComparison.InvariantCultureIgnoreCase);
+                    break;
+                case "url":
+                    comparison = (s1, s2) => s1.Url.CompareTo(s2.Url);
+                    break;
+                case "phone":
+                    comparison = (s1, s2) => s1.Phone.CompareTo(s2.Phone);
+                    break;
+            }
+            if (comparison != null)
+            {
+                if (sort.Direction == MatSortDirection.Desc)
+                {
+                    Leads.Sort((s1, s2) => -1 * comparison(s1, s2));
+                }
+                else
+                {
+                    Leads.Sort(comparison);
+                }
+            }
+        }
+    }
+
 }
 
 @if (Searching)
 {
-    <div>Searching...</div>
-    <div>
-        <img src="/Content/searching-spinner.gif" />
-    </div>
+    <h3 class="mat-subtitle1">Loading...</h3>
+    <MatProgressCircle Indeterminate="true" FourColored="true" Size="MatProgressCircleSize.Large" />
 }
 else
 {
     <div>Leads Found: @LeadsFound</div>
+    @if (Leads.Any())
+    {
+        <MatTable Items="@Leads" Striped="true" AllowSelection="true" PageSize="50"
+          FilterByColumnName="Name" UseSortHeaderRow="true">
+            <MatTableHeader>
+                <MatSortHeaderRow SortChanged="@SortData">
+                    <MatSortHeader SortId="name"><span style="width:350px">Name</span></MatSortHeader>
+                    <MatSortHeader SortId="url">Url</MatSortHeader>
+                    <MatSortHeader SortId="phone">Phone</MatSortHeader>
+                </MatSortHeaderRow>
+            </MatTableHeader>
+            <MatTableRow>
+                <td>@context.Name</td>
+                <td>@context.Url</td>
+                <td>@context.Phone</td>
+            </MatTableRow>
+        </MatTable>
+
+    }
 }

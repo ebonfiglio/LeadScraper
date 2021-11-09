@@ -20,32 +20,30 @@ namespace LeadScraper.Domain.Services
     public class SearchService : ISearchService
     {
         private readonly ISettingsService _settingsService;
-        private readonly IWhoIsServerService _whoIsServerService;
         private readonly IHttpClientFactory _httpClientFactory;
         const string endpoint = "https://api.bing.microsoft.com/v7.0/search";
-        public SearchService(ISettingsService settingsService, IWhoIsServerService whoIsServerService, IHttpClientFactory httpClientFactory)
+        private List<string> _blackListTermsList = new List<string>();
+        private List<string> _whiteListTldList = new List<string>();
+        public SearchService(ISettingsService settingsService, IHttpClientFactory httpClientFactory)
         {
             _settingsService = settingsService;
-            _whoIsServerService = whoIsServerService;
             _httpClientFactory = httpClientFactory;
         }
-        public async Task<List<LeadItem>> Search(SearchRequest request)
+        public async Task<HashSet<LeadItem>> Search(SearchRequest request)
         {
             var settings = await _settingsService.GetAsync();
+            _blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
+            _whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
             SearchResult result = await GetBingSearchResult(request, settings);
-            List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
-            List<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
-            List<LeadItem> finalLeads = GetPhoneNumber(leads);
+            HashSet<LeadItem> leads = GetLeadItems(settings, result);
+            HashSet<LeadItem> finalLeads = GetPhoneNumber(leads);
             return await Task.Run(()=> finalLeads);
-
         }
-
 
         private async Task<SearchResult> GetBingSearchResult(SearchRequest request, SettingResponse settings)
         {
             string uriQuery = ConstructSearchUri(request);
             string json = await GetSearchResultJson(uriQuery, settings);
-            dynamic pardjson = JsonConvert.DeserializeObject(json);
             SearchResult result = JsonConvert.DeserializeObject<SearchResult>(json);
 
             return result;
@@ -59,7 +57,7 @@ namespace LeadScraper.Domain.Services
 
             if (request.CountryCode == "All" || request.CountryCode == null) return uriQuery;
 
-            uriQuery = uriQuery + "&cc=" + request.CountryCode;
+            uriQuery = uriQuery + "&mkt=en-" + request.CountryCode;
 
             return uriQuery;
         }
@@ -78,22 +76,19 @@ namespace LeadScraper.Domain.Services
             return json;
         }
 
-        private bool UriContainsBlackListTerm(SettingResponse settings, WebPagesValue webPage)
+        private bool UriContainsBlackListTerm(WebPagesValue webPage)
         {
-            List<string> blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
-            return blackListTermsList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
+            return _blackListTermsList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private bool UriContainsWhiteListTld(SettingResponse settings, WebPagesValue webPage)
+        private bool UriContainsWhiteListTld(WebPagesValue webPage)
         {
-            List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
-            return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
+            return _whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
-        private bool UriEndsWithWhiteListTld(SettingResponse settings, WebPagesValue webPage)
+        private bool UriEndsWithWhiteListTld(WebPagesValue webPage)
         {
-            List<string> whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
-            return whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
+            return _whiteListTldList.Any(s => webPage.Url.AbsoluteUri.Contains(s));
         }
 
         private string CleanUri(SettingResponse settings, string uri, WebPagesValue webPage)
@@ -103,13 +98,12 @@ namespace LeadScraper.Domain.Services
                 uri = uri.Substring(0, uri.IndexOf('?'));
             }
 
-            if (UriEndsWithWhiteListTld(settings, webPage)) return uri;
+            if (UriEndsWithWhiteListTld(webPage)) return uri;
 
             uri = uri.Replace(webPage.Url.AbsolutePath, "");
             uri = uri.Replace("!", "");
             uri = uri.Replace("#", "");
             return CleanUri(settings, uri, webPage);
-
         }
 
         private string FindContactUrl(WebPagesValue webPage)
@@ -119,40 +113,31 @@ namespace LeadScraper.Domain.Services
             return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("About"))?.Url?.ToString();
         }
 
-        private List<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
+        private HashSet<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result)
         {
-            List<LeadItem> leads = new List<LeadItem>();
+            HashSet<LeadItem> leads = new HashSet<LeadItem>();
 
             foreach (var webPage in result.WebPages.Value)
             {
-                if (!UriContainsBlackListTerm(settings, webPage) && UriContainsWhiteListTld(settings, webPage))
+                if (!UriContainsBlackListTerm(webPage) && UriContainsWhiteListTld(webPage))
                 {
-                    //foreach(var tld in settings.WhiteListTlds.Split(','))
-                    //{
-                    //    var server = whoIsServers.FirstOrDefault(l => l.Tld == tld);
-                    //    if (server == null) break;
-                    //    var whoIsInfo = GetWhoisInformation(server.Server, webPage.Url.Host);
-
-                    //}
                     LeadItem lead = new LeadItem();
                     lead.Name = webPage.Name;
                     lead.Url = webPage.Url.ToString();
                     lead.Host = webPage.Url.Host;
                     lead.ContactUrl = FindContactUrl(webPage);
                     leads.Add(lead);
-
                 }
 
             }
-
-            return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToList();
+            return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToHashSet();
         }
 
-        private List<LeadItem> GetPhoneNumber(List<LeadItem> leads)
+        private HashSet<LeadItem> GetPhoneNumber(HashSet<LeadItem> leads)
         {
             var httpClient = new HttpClient();
             httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
-            List<LeadItem> finalList = new List<LeadItem>();
+            HashSet<LeadItem> finalList = new HashSet<LeadItem>();
             Regex phoneNumExp = new Regex(@"(\({0,1}\d{3}\){0,1}[- \.]\d{3}[- \.]\d{4})|(\+\d{2}-\d{2,4}-\d{3,4}-\d{3,4})");
             foreach (var lead in leads)
             {
@@ -166,12 +151,22 @@ namespace LeadScraper.Domain.Services
                     {
                         phoneIndex = html.IndexOf("tel");
                     }
-                    if (phoneIndex == -1) throw new ArgumentException("no phone number on page");
+                    if (phoneIndex == -1)
+                    {
+                        string number = "COULDNT SCRAPE";
+                        lead.Phone = number;
+                        continue;
+                    }
                     var shortHtml = html.Substring(phoneIndex);
 
                     var match = phoneNumExp.Match(shortHtml);
 
-                    if (!match.Success) throw new ArgumentException("no phone number on page");
+                    if (!match.Success)
+                    {
+                        string number = "COULDNT SCRAPE";
+                        lead.Phone = number;
+                        continue;
+                    }
                     lead.Phone = match.Value;
 
                 }

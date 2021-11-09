@@ -8,9 +8,9 @@
   "singleInstance": false,
   "build": {
     "appId": "com.LeadScraper.app",
-    "productName": "LeadScraper",
-    "copyright": "Copyright © 2020",
-    "buildVersion": "1.0.0",
+    "productName": "LeadScraper2",
+    "copyright": "Copyright © 2021",
+    "buildVersion": "2.0.0",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"

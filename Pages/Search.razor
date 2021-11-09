@@ -1,46 +1,43 @@
 ﻿@page "/search"
-@using LeadScraper.ComponentBases
-@inherits SearchBase
+@using LeadScraper.ViewModels
+@inherits SearchViewModel
 
 
 <h1>Search</h1>
 
-    <div class="form-group row">
-            <label for="staticEmail" class="col-sm-2 col-form-label">Search Term</label>        
-            <div class="col-sm-6">
-                <input type="text" class="form-control" @bind="Search.SearchTerm">
-            </div>
-        </div>
-    <div class="form-group row">  
-            <label for="inputPassword" class="col-sm-2 col-form-label">Results Per Page</label>     
-            <div class="col-sm-6">
-                <input type="number" min="10" max="50" class="form-control" @bind="Search.ResultsPerPage">
-            </div>
-        </div>
-    <div class="form-group row">     
-            <label for="inputPassword" class="col-sm-2 col-form-label">Starting Page</label>          
-            <div class="col-sm-6">
-                <input type="number" min="1" class="form-control" @bind="Search.StartingPage">
-            </div>
-        </div>
-    <div class="form-group row">        
-            <label for="inputPassword" class="col-sm-2 col-form-label">Pages</label>         
-            <div class="col-sm-6">
-                <input type="number" min="1" class="form-control" @bind="Search.Pages">
-            </div>
-        </div>
-    <div class="form-group row">
-            <label for="inputPassword" class="col-sm-2 col-form-label">Country Code</label>        
-            <div class="col-sm-6">
-                <select @bind="Search.CountryCode" class="form-control">
-                    <option value="All">All</option>
-                    @foreach (var country in CountryList)
-                    {
-                        <option value="@country.Code">@country.Name</option>
-                    }
-                </select>
-            </div>
-        </div>
-    <button class="btn btn-outline-success" @onclick="GetLeads">Search</button>
+<div class="form-group row">
+    <MatTextField @bind-Value="@SearchTerm"
+                  Label="Search Term"
+                  Outlined="true"
+                  Style="min-width:200px; width:400px;"
+    ></MatTextField>
+</div>
+<div class="form-group row">
+    <MatNumericUpDownField @bind-Value="@ResultsPerPage"
+                           Label="Results Per Page"
+                           Outlined="true"
+                           Minimum=10
+                           Maximum=50></MatNumericUpDownField>
+</div>
+<div class="form-group row">
+    <MatNumericUpDownField @bind-Value="@StartingPage"
+                           Label="Starting Page"
+                           Outlined="true"
+                           Minimum=1></MatNumericUpDownField>
+</div>
+<div class="form-group row">
+    <MatNumericUpDownField @bind-Value="@Pages"
+                           Label="Pages"
+                           Outlined="true"
+                           Minimum=1></MatNumericUpDownField>
+</div>
+<div class="form-group row">
+    <MatSelectValue Label="Country Code" Outlined="true" @bind-Value="CountryCode" Items="@CountryList" ValueSelector="@(i=>i.Code)">
+        <ItemTemplate>
+            <span>@context?.Name</span>
+        </ItemTemplate>
+    </MatSelectValue>
+</div>
+<MatButton Raised="true" OnClick="GetLeads" Class="my-2" Icon="search">Search</MatButton>
 <hr />
-<SearchResultComponent  @ref="ChildComponent"></SearchResultComponent>
+<SearchResultComponent @ref="ChildComponent"></SearchResultComponent>
