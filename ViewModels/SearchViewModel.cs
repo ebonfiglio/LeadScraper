@@ -1,5 +1,4 @@
 ﻿using LeadScraper.Domain.Contracts;
-using LeadScraper.Domain.Models;
 using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Models;
 using LeadScraper.Shared;
@@ -15,6 +14,9 @@ namespace LeadScraper.ViewModels
     {
         [Inject]
         ISearchService _searchService { get; set; }
+
+        [Inject]
+        ISearchSettingService _searchSettingService { get; set; }
 
         [Inject]
         IWriteFileService _writeFileService { get; set; }
@@ -39,6 +41,15 @@ namespace LeadScraper.ViewModels
         {
             var countries = JsonConvert.DeserializeObject<List<CountryModel>>(GetCountryCodes());
             CountryList = countries;
+
+            var searchSettings = await _searchSettingService.GetAsync();
+            if(searchSettings != null)
+            {
+                ResultsPerPage = searchSettings.ResultsPerPage;
+                StartingPage = searchSettings.StartingPage;
+                Pages = searchSettings.Pages;
+                CountryCode = searchSettings.CountryCode;
+            }
         }
 
         private string GetCountryCodes()
@@ -302,15 +313,17 @@ namespace LeadScraper.ViewModels
             searchRequest.ResultsPerPage = ResultsPerPage;
             searchRequest.SearchTerm = SearchTerm;
             searchRequest.StartingPage = StartingPage;
+            searchRequest.Id = 1;
+
             ChildComponent.Refresh(true, 0, null);
             await Task.Yield();
+
             var leads  = await _searchService.Search(searchRequest);
+            _writeFileService.WriteToFile(leads, searchRequest);
             LeadsFound = leads?.Count ?? 0;
-            _writeFileService.WriteToFile(leads);
             ChildComponent.Refresh(false, LeadsFound, leads.ToList());
+
+            await _searchSettingService.UpsertAsync(searchRequest);
         }
     }
-
-
-    
 }

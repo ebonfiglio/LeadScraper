@@ -45,6 +45,8 @@ namespace LeadScraper
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
             services.AddScoped<ISearchService, SearchService>();
+            services.AddScoped<ISearchSettingService, SearchSettingService>();
+            services.AddScoped<ISearchSettingsRepository, SearchSettingsRepository>();
             services.AddScoped<IWhoIsServerRepository, WhoIsServerRepository>();
             services.AddScoped<IWhoIsServerService, WhoIsServerService>();
             services.AddScoped<IWriteFileService, WritefileService>();

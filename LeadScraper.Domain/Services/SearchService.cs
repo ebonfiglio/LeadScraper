@@ -20,15 +20,13 @@ namespace LeadScraper.Domain.Services
     public class SearchService : ISearchService
     {
         private readonly ISettingsService _settingsService;
-        private readonly IWhoIsServerService _whoIsServerService;
         private readonly IHttpClientFactory _httpClientFactory;
         const string endpoint = "https://api.bing.microsoft.com/v7.0/search";
         private List<string> _blackListTermsList = new List<string>();
         private List<string> _whiteListTldList = new List<string>();
-        public SearchService(ISettingsService settingsService, IWhoIsServerService whoIsServerService, IHttpClientFactory httpClientFactory)
+        public SearchService(ISettingsService settingsService, IHttpClientFactory httpClientFactory)
         {
             _settingsService = settingsService;
-            _whoIsServerService = whoIsServerService;
             _httpClientFactory = httpClientFactory;
         }
         public async Task<HashSet<LeadItem>> Search(SearchRequest request)
@@ -37,8 +35,7 @@ namespace LeadScraper.Domain.Services
             _blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
             _whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
             SearchResult result = await GetBingSearchResult(request, settings);
-            List<WhoIsServerResponse> whoIsServers = _whoIsServerService.GetAll();
-            HashSet<LeadItem> leads = GetLeadItems(settings, result, whoIsServers);
+            HashSet<LeadItem> leads = GetLeadItems(settings, result);
             HashSet<LeadItem> finalLeads = GetPhoneNumber(leads);
             return await Task.Run(()=> finalLeads);
         }
@@ -47,7 +44,6 @@ namespace LeadScraper.Domain.Services
         {
             string uriQuery = ConstructSearchUri(request);
             string json = await GetSearchResultJson(uriQuery, settings);
-            dynamic pardjson = JsonConvert.DeserializeObject(json);
             SearchResult result = JsonConvert.DeserializeObject<SearchResult>(json);
 
             return result;
@@ -61,7 +57,7 @@ namespace LeadScraper.Domain.Services
 
             if (request.CountryCode == "All" || request.CountryCode == null) return uriQuery;
 
-            uriQuery = uriQuery + "&cc=" + request.CountryCode;
+            uriQuery = uriQuery + "&mkt=en-" + request.CountryCode;
 
             return uriQuery;
         }
@@ -108,7 +104,6 @@ namespace LeadScraper.Domain.Services
             uri = uri.Replace("!", "");
             uri = uri.Replace("#", "");
             return CleanUri(settings, uri, webPage);
-
         }
 
         private string FindContactUrl(WebPagesValue webPage)
@@ -118,22 +113,14 @@ namespace LeadScraper.Domain.Services
             return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("About"))?.Url?.ToString();
         }
 
-        private HashSet<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result, List<WhoIsServerResponse> whoIsServers)
+        private HashSet<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result)
         {
             HashSet<LeadItem> leads = new HashSet<LeadItem>();
 
             foreach (var webPage in result.WebPages.Value)
             {
-                //TODO: Optimize this
                 if (!UriContainsBlackListTerm(webPage) && UriContainsWhiteListTld(webPage))
                 {
-                    //foreach(var tld in settings.WhiteListTlds.Split(','))
-                    //{
-                    //    var server = whoIsServers.FirstOrDefault(l => l.Tld == tld);
-                    //    if (server == null) break;
-                    //    var whoIsInfo = GetWhoisInformation(server.Server, webPage.Url.Host);
-
-                    //}
                     LeadItem lead = new LeadItem();
                     lead.Name = webPage.Name;
                     lead.Url = webPage.Url.ToString();

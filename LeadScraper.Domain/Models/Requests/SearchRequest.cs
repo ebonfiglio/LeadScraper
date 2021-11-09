@@ -6,7 +6,7 @@ namespace LeadScraper.Domain.Models.Requests
 {
     public class SearchRequest
     {
-
+        public int Id { get; set; }
         public string SearchTerm { get; set; }
 
         public int ResultsPerPage { get; set; }

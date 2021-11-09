@@ -3,6 +3,7 @@ using LeadScraper.Domain.Contracts;
 using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Domain.Models.Responses;
 using LeadScraper.Infrastructure.Contracts;
+using LeadScraper.Infrastructure.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace LeadScraper.Domain.Services
 {
-    public class SearchSettingService : ISeachSettingService
+    public class SearchSettingService : ISearchSettingService
     {
 
         ISearchSettingsRepository _repo;
@@ -21,33 +22,40 @@ namespace LeadScraper.Domain.Services
             _repo = repo;
             _mapper = mapper;
         }
-        public async Task<SearchSettingResponse> AddAsync(SettingRequest request)
+
+        public async Task<SearchSettingResponse> UpsertAsync(SearchRequest request)
         {
-            var entity = _mapper.Map<Setting>(request);
+            if(await GetAsync() is not null) return await EditAsync(request);
+
+            return await AddAsync(request);
+        
+        }
+
+        private async Task<SearchSettingResponse> AddAsync(SearchRequest request)
+        {
+            var entity = _mapper.Map<SearchSetting>(request);
             entity = _repo.Add(entity);
             await _repo.SaveChangesAsync();
-            return await Task.Run(() => _mapper.Map<SettingResponse>(entity));
+            return await Task.Run(() => _mapper.Map<SearchSettingResponse>(entity));
         }
 
-        public void Delete(Setting request)
+        private async Task<SearchSettingResponse> EditAsync(SearchRequest request)
         {
-            //_repo.Delete(_mapper.Map<Setting>(request));
-            _repo.Delete(request);
-        }
-
-        public async Task<SearchSettingResponse> EditAsync(SettingRequest request)
-        {
-
-            var entity = _repo.Update(_mapper.Map<SettingRequest, Setting>(request));
+            var entity = _repo.Update(_mapper.Map<SearchRequest, SearchSetting>(request));
             await _repo.SaveChangesAsync();
 
-            return _mapper.Map<SettingResponse>(entity);
+            return _mapper.Map<SearchSettingResponse>(entity);
+        }
+
+        public void Delete(SearchSetting request)
+        {
+            _repo.Delete(request);
         }
 
         public async Task<SearchSettingResponse> GetAsync()
         {
             var entity = await _repo.GetAsync();
-            return _mapper.Map<SettingResponse>(entity);
+            return _mapper.Map<SearchSettingResponse>(entity);
         }
     }
 }

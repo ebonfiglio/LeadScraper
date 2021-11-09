@@ -6,7 +6,7 @@ using System.Text;
 
 namespace LeadScraper.Infrastructure
 {
-    public class ApplicationDbContext :DbContext
+    public class ApplicationDbContext : DbContext
     {
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -17,11 +17,11 @@ namespace LeadScraper.Infrastructure
         protected override void OnConfiguring(DbContextOptionsBuilder options)
               => options.UseSqlite("Filename=LeadScraperDb.db");
 
-    public virtual DbSet<Setting> Settings { get; set; }
+        public virtual DbSet<Setting> Settings { get; set; }
 
-    public virtual DbSet<SearchSetting> SearchSetting { get; set; }
+        public virtual DbSet<SearchSetting> SearchSetting { get; set; }
 
-    public virtual DbSet<WhoIsServer> WhoIsServers { get; set; }
+        public virtual DbSet<WhoIsServer> WhoIsServers { get; set; }
 
     }
 }

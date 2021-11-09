@@ -1,5 +1,6 @@
 ﻿using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Domain.Models.Responses;
+using LeadScraper.Infrastructure.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,11 +9,10 @@ using System.Threading.Tasks;
 
 namespace LeadScraper.Domain.Contracts
 {
-    public interface ISeachSettingService
+    public interface ISearchSettingService
     {
         Task<SearchSettingResponse> GetAsync();
-        Task<SearchSettingResponse> AddAsync(SearchRequest request);
-        Task<SearchSettingResponse> EditAsync(SearchRequest request);
-        void Delete(SearchSettingResponse request);
+        Task<SearchSettingResponse> UpsertAsync(SearchRequest request);
+        void Delete(SearchSetting request);
     }
 }

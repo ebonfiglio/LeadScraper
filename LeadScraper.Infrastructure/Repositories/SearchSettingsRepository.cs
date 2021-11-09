@@ -40,17 +40,7 @@ namespace LeadScraper.Infrastructure.Repositories
 
         public SearchSetting Update(SearchSetting entity)
         {
-            var local = _context.Set<SearchSetting>()
-    .Local
-    .FirstOrDefault(entry => entry.Id.Equals(entity.Id));
-
-            // check if local is not null 
-            if (local != null)
-            {
-                // detach
-                _context.Entry(local).State = EntityState.Detached;
-            }
-            _context.Entry(entity).State = EntityState.Modified;
+            _context.SearchSetting.Update(entity);
             return entity;
         }
     }
