@@ -67,7 +67,7 @@ namespace LeadScraper.Domain.Services
 
             if (request.CountryCode == "All" || request.CountryCode == null) return uriQuery;
 
-            uriQuery = uriQuery + "&mkt=en-" + request.CountryCode;
+            uriQuery = uriQuery + "&mkt=" + request.CountryCode;
 
             return uriQuery;
         }
