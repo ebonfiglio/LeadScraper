@@ -10,7 +10,7 @@
     "appId": "com.LeadScraper.app",
     "productName": "LeadScraper2",
     "copyright": "Copyright © 2021",
-    "buildVersion": "2.0.0",
+    "buildVersion": "2.1.0",
     "compression": "maximum",
     "directories": {
       "output": "../../../bin/Desktop"
