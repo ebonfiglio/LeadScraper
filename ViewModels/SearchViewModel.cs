@@ -320,7 +320,7 @@ namespace LeadScraper.ViewModels
 
             var leads  = await _searchService.Search(searchRequest);
             _writeFileService.WriteToFile(leads, searchRequest);
-            LeadsFound = leads?.Count ?? 0;
+            LeadsFound = leads.Count();
             ChildComponent.Refresh(false, LeadsFound, leads.ToList());
 
             await _searchSettingService.UpsertAsync(searchRequest);

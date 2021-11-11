@@ -5,6 +5,7 @@ using LeadScraper.Domain.Models.Responses;
 using LeadScraper.Infrastructure.Entities;
 using Newtonsoft.Json;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -34,9 +35,18 @@ namespace LeadScraper.Domain.Services
             var settings = await _settingsService.GetAsync();
             _blackListTermsList = new List<string>(settings.BlackListTerms.Split(','));
             _whiteListTldList = new List<string>(settings.WhiteListTlds.Split(','));
-            SearchResult result = await GetBingSearchResult(request, settings);
-            HashSet<LeadItem> leads = GetLeadItems(settings, result);
-            HashSet<LeadItem> finalLeads = GetPhoneNumber(leads);
+            HashSet<SearchResult> results = new HashSet<SearchResult>();
+            int toSubtract = 0;
+            for (int i = 0; i < request.Pages; i++)
+            {
+                SearchResult result = await GetBingSearchResult(request, settings);
+                results.Add(result);
+                request.StartingPage++;
+                toSubtract++;
+            }
+            request.StartingPage -= toSubtract;
+            HashSet<LeadItem> leads = GetLeadItems(settings, results);
+            HashSet<LeadItem> finalLeads = await GetPhoneNumber(leads);
             return await Task.Run(()=> finalLeads);
         }
 
@@ -113,72 +123,82 @@ namespace LeadScraper.Domain.Services
             return webPage.DeepLinks?.FirstOrDefault(l => l.Name.Contains("About"))?.Url?.ToString();
         }
 
-        private HashSet<LeadItem> GetLeadItems(SettingResponse settings, SearchResult result)
+        private HashSet<LeadItem> GetLeadItems(SettingResponse settings, IEnumerable<SearchResult> results)
         {
             HashSet<LeadItem> leads = new HashSet<LeadItem>();
 
-            foreach (var webPage in result.WebPages.Value)
+            foreach (var result in results)
             {
-                if (!UriContainsBlackListTerm(webPage) && UriContainsWhiteListTld(webPage))
+                if (result.WebPages is not null)
                 {
-                    LeadItem lead = new LeadItem();
-                    lead.Name = webPage.Name;
-                    lead.Url = webPage.Url.ToString();
-                    lead.Host = webPage.Url.Host;
-                    lead.ContactUrl = FindContactUrl(webPage);
-                    leads.Add(lead);
+                    foreach (var webPage in result.WebPages.Value)
+                    {
+                        if (!UriContainsBlackListTerm(webPage) && UriContainsWhiteListTld(webPage))
+                        {
+                            LeadItem lead = new LeadItem();
+                            lead.Name = webPage.Name;
+                            lead.Url = webPage.Url.ToString();
+                            lead.Host = webPage.Url.Host;
+                            lead.ContactUrl = FindContactUrl(webPage);
+                            leads.Add(lead);
+                        }
+                    }
                 }
-
             }
             return leads = leads.GroupBy(elem => elem.Host).Select(group => group.First()).ToHashSet();
         }
 
-        private HashSet<LeadItem> GetPhoneNumber(HashSet<LeadItem> leads)
+        private async Task<HashSet<LeadItem>> GetPhoneNumber(HashSet<LeadItem> leads)
         {
-            var httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
+            var client = _httpClientFactory.CreateClient();
+            client.DefaultRequestHeaders.Add("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/70.0.3538.102 Safari/537.36 Edge/18.18363");
             HashSet<LeadItem> finalList = new HashSet<LeadItem>();
             Regex phoneNumExp = new Regex(@"(\({0,1}\d{3}\){0,1}[- \.]\d{3}[- \.]\d{4})|(\+\d{2}-\d{2,4}-\d{3,4}-\d{3,4})");
-            foreach (var lead in leads)
+            foreach(var lead in leads)
             {
                 string html = "";
                 try
                 {
                     var url = lead.ContactUrl ?? lead.Url;
-                    html = httpClient.GetStringAsync(url).Result;
+                    html = await client.GetStringAsync(url);
                     int phoneIndex = html.IndexOf("phone");
+                    
                     if (phoneIndex == -1)
                     {
                         phoneIndex = html.IndexOf("tel");
                     }
+
                     if (phoneIndex == -1)
                     {
                         string number = "COULDNT SCRAPE";
                         lead.Phone = number;
-                        continue;
+                        finalList.Add(lead);
                     }
-                    var shortHtml = html.Substring(phoneIndex);
-
-                    var match = phoneNumExp.Match(shortHtml);
-
-                    if (!match.Success)
+                    else
                     {
-                        string number = "COULDNT SCRAPE";
-                        lead.Phone = number;
-                        continue;
-                    }
-                    lead.Phone = match.Value;
+                        var shortHtml = html.Substring(phoneIndex);
+                        var match = phoneNumExp.Match(shortHtml);
 
+                        if (!match.Success)
+                        {
+                            string number = "COULDNT SCRAPE";
+                            lead.Phone = number;
+                            finalList.Add(lead);
+                        }
+                        else
+                        {
+                            lead.Phone = match.Value;
+                            finalList.Add(lead);
+                        }
+                    }
                 }
                 catch (Exception ex)
                 {
                     string number = "COULDNT SCRAPE";
                     lead.Phone = number;
-
                 }
-                finalList.Add(lead);
-
             }
+
             return finalList;
         }
         private string GetWhoisInformation(string whoisServer, string url)
