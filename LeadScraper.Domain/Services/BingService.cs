@@ -18,14 +18,14 @@ using System.Threading.Tasks;
 
 namespace LeadScraper.Domain.Services
 {
-    public class SearchService : ISearchService
+    public class BingService : ISearchService
     {
         private readonly ISettingsService _settingsService;
         private readonly IHttpClientFactory _httpClientFactory;
         const string endpoint = "https://api.bing.microsoft.com/v7.0/search";
         private List<string> _blackListTermsList = new List<string>();
         private List<string> _whiteListTldList = new List<string>();
-        public SearchService(ISettingsService settingsService, IHttpClientFactory httpClientFactory)
+        public BingService(ISettingsService settingsService, IHttpClientFactory httpClientFactory)
         {
             _settingsService = settingsService;
             _httpClientFactory = httpClientFactory;

@@ -1,7 +1,7 @@
 ﻿using LeadScraper.Domain.Contracts;
 using LeadScraper.Domain.Models.Requests;
 using LeadScraper.Models;
-using LeadScraper.Shared;
+using LeadScraper.MAUI.Shared;
 using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using System;

@@ -56,8 +56,6 @@ namespace LeadScraper.ViewModels
                 await AddInitialSettings();
                 StateHasChanged();
             }
-            
-           
         }
 
         public async Task AddBlackListTerm(string term)
