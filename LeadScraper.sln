@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.Infrastructure"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.MAUI", "LeadScraper.MAUI\LeadScraper.MAUI.csproj", "{A2B89BCD-05CD-4E20-8E11-72B4A7AE557E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LeadScraper.Console", "LeadScraper.Console\LeadScraper.Console.csproj", "{395F51A5-870F-4A15-9DC9-A53B1ABABE97}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "LeadScraper.Console", "LeadScraper.Console\LeadScraper.Console.csproj", "{395F51A5-870F-4A15-9DC9-A53B1ABABE97}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiApp1", "MauiApp1\MauiApp1.csproj", "{4705B8C5-F766-4252-80AA-27572FD5E0A1}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -35,6 +37,12 @@ Global
 		{395F51A5-870F-4A15-9DC9-A53B1ABABE97}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{395F51A5-870F-4A15-9DC9-A53B1ABABE97}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{395F51A5-870F-4A15-9DC9-A53B1ABABE97}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4705B8C5-F766-4252-80AA-27572FD5E0A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4705B8C5-F766-4252-80AA-27572FD5E0A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4705B8C5-F766-4252-80AA-27572FD5E0A1}.Debug|Any CPU.Deploy.0 = Debug|Any CPU
+		{4705B8C5-F766-4252-80AA-27572FD5E0A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4705B8C5-F766-4252-80AA-27572FD5E0A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4705B8C5-F766-4252-80AA-27572FD5E0A1}.Release|Any CPU.Deploy.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

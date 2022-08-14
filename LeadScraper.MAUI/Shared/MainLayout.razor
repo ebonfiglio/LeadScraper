@@ -3,20 +3,24 @@
     public MatTheme Theme { get; } = new MatTheme()
         {
             Primary = "#0d47a1",
-            Surface= "#ffffff"
+            Surface = "#ffffff"
         };
-        }
+}
+
 <MatThemeProvider Theme="@Theme">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+ <div class="page">
+	<div class="sidebar">
+		<NavMenu />
+	</div>
 
-    <div class="main">
-        <div class="top-row px-4">
-        </div>
+	<main>
+		<div class="top-row px-4">
 
-        <div class="content px-4">
-            @Body
-        </div>
-    </div>
+		</div>
+
+		<article class="content px-4">
+			@Body
+		</article>
+	</main>
+</div>
 </MatThemeProvider>

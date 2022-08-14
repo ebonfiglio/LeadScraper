@@ -10,8 +10,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace LeadScraper.Infrastructure.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20220813214400_MauiRebuild")]
-    partial class MauiRebuild
+    [Migration("20220814190846_MauiRebuildInitial")]
+    partial class MauiRebuildInitial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {

@@ -5,34 +5,43 @@
 
 <h1>Search</h1>
 
-<div class="form-group row">
+<div class="form-group row mb-2">
     <MatTextField @bind-Value="@SearchTerm"
                   Label="Search Term"
                   Outlined="true"
                   Style="min-width:200px; width:400px;"
     ></MatTextField>
 </div>
-<div class="form-group row">
+<div class="form-group row mb-2">
     <MatNumericUpDownField @bind-Value="@ResultsPerPage"
                            Label="Results Per Page"
                            Outlined="true"
                            Minimum=10
-                           Maximum=50></MatNumericUpDownField>
+                           Maximum=50
+                           Style="min-width:150px; width:200px;">
+                       </MatNumericUpDownField>
 </div>
-<div class="form-group row">
+<div class="form-group row mb-2">
     <MatNumericUpDownField @bind-Value="@StartingPage"
                            Label="Starting Page"
                            Outlined="true"
-                           Minimum=1></MatNumericUpDownField>
+                           Minimum=1
+                           Style="min-width:150px; width:200px;"></MatNumericUpDownField>
 </div>
-<div class="form-group row">
+<div class="form-group row mb-2">
     <MatNumericUpDownField @bind-Value="@Pages"
                            Label="Pages"
                            Outlined="true"
-                           Minimum=1></MatNumericUpDownField>
+                           Minimum=1
+                           Style="min-width:150px; width:200px;"></MatNumericUpDownField>
 </div>
-<div class="form-group row">
-    <MatSelectValue Label="Country Code" Outlined="true" @bind-Value="CountryCode" Items="@CountryList" ValueSelector="@(i=>i.Code)">
+<div class="form-group row mb-2">
+    <MatSelectValue 
+        Label="Country Code" 
+        Outlined="true" @bind-Value="CountryCode" 
+        Items="@CountryList" 
+        ValueSelector="@(i=>i.Code)" 
+        Style="min-width:200px; width:400px;padding-left: 0px !important; padding-right: 0px !important;">
         <ItemTemplate>
             <span>@context?.Name</span>
         </ItemTemplate>
