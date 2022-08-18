@@ -1,0 +1,26 @@
+﻿<h3>OpenCorporateSearch</h3>
+
+@code {
+
+}
+
+<h3>OpenCorporate Search</h3>
+
+<MatTextField @bind-Value="@SearchTerm"
+              Label="Search Term"
+              Outlined="true"
+              Style="min-width:200px; width:400px;"></MatTextField>
+
+<div class="form-group row mb-2">
+    <MatSelectValue Label="Country Code"
+                    Outlined="true" @bind-Value="CountryCode"
+                    Items="@CountryList"
+                    ValueSelector="@(i=>i.Code)"
+                    Style="min-width:200px; width:400px;padding-left: 0px !important; padding-right: 0px !important;">
+        <ItemTemplate>
+            <span>@context?.Name</span>
+        </ItemTemplate>
+    </MatSelectValue>
+
+    <MatButton>Serach</MatButton>
+</div>
