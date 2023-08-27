@@ -4,7 +4,6 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using ElectronNET.API;
 using LeadScraper.Infrastructure;
 using LeadScraper.Infrastructure.Contracts;
 using LeadScraper.Infrastructure.Repositories;
@@ -13,7 +12,6 @@ using LeadScraper.Domain.Services;
 using AutoMapper;
 using LeadScraper.Domain.Mapper;
 using Microsoft.EntityFrameworkCore;
-using ElectronNET.API.Entities;
 using MatBlazor;
 
 namespace LeadScraper
@@ -44,8 +42,9 @@ namespace LeadScraper
             services.AddAutoMapper(typeof(LeadScraperProfile));
             services.AddScoped<ISettingsRepository, SettingsRepository>();
             services.AddScoped<ISettingsService, SettingsService>();
-            services.AddScoped<ISearchService, SearchService>();
+            services.AddScoped<ISearchService, BingService>();
             services.AddScoped<ISearchSettingService, SearchSettingService>();
+            services.AddScoped<ILoggingService, LoggingService>();
             services.AddScoped<ISearchSettingsRepository, SearchSettingsRepository>();
             services.AddScoped<IWhoIsServerRepository, WhoIsServerRepository>();
             services.AddScoped<IWhoIsServerService, WhoIsServerService>();
@@ -73,8 +72,6 @@ namespace LeadScraper
                 endpoints.MapBlazorHub();
                 endpoints.MapFallbackToPage("/_Host");
             });
-
-           Task.Run(async () => await Electron.WindowManager.CreateWindowAsync());
         }
     }
 }

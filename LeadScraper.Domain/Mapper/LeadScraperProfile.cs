@@ -14,7 +14,8 @@ namespace LeadScraper.Domain.Mapper
             CreateMap<SettingResponse, Setting>().ReverseMap();
             CreateMap<SearchRequest, SearchSetting>().ReverseMap();
             CreateMap<SearchSettingResponse, SearchSetting>().ReverseMap();
-            CreateMap<List<WhoIsServerResponse>, List<WhoIsServer>>().ReverseMap();
+            //CreateMap<WhoIsServerResponse, WhoIsServer>().ReverseMap();
+            //CreateMap<List<WhoIsServerResponse>, List<WhoIsServer>>().ReverseMap();
         }
        
     }
